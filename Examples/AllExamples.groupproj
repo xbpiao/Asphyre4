@@ -1,17 +1,17 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{8efd75c1-2afd-4d3d-9710-f050df30f925}</ProjectGuid>
+    <ProjectGuid>{469d824f-273f-49c6-a145-0be4510d893d}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
-    <Projects Include="1xp5_Physics\Physic.dproj" />
-    <Projects Include="BasicGui\BasicGui.dproj" />
-    <Projects Include="BasicShdr\BasicShdr.dproj" />
-    <Projects Include="BumpMapping\BumpMapping.dproj" />
-    <Projects Include="Landscape\Landscape.dproj" />
-    <Projects Include="Plasma\Plasma.dproj" />
-    <Projects Include="ShadowMap\ShadowMap.dproj" />
-    <Projects Include="TargetsNPanels\TargetsNPanels.dproj" />
+    <Projects Include="1xp5_Physics\Physic_d2007.dproj" />
+    <Projects Include="BasicGui\BasicGui2007.dproj" />
+    <Projects Include="BasicShdr\BasicShdr_d2007.dproj" />
+    <Projects Include="BumpMapping\BumpMapping_d2007.dproj" />
+    <Projects Include="Landscape\Landscape_D2007.dproj" />
+    <Projects Include="Plasma\Plasma_d2007.dproj" />
+    <Projects Include="ShadowMap\ShadowMap_d2007.dproj" />
+    <Projects Include="TargetsNPanels\TargetsNPanels_d2007.dproj" />
   </ItemGroup>
   <ProjectExtensions>
     <Borland.Personality>Default.Personality</Borland.Personality>
@@ -19,86 +19,86 @@
     <BorlandProject>
   <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
   </ProjectExtensions>
-  <Target Name="ShadowMap">
-    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="" />
+  <Target Name="BasicGui2007">
+    <MSBuild Projects="BasicGui\BasicGui2007.dproj" Targets="" />
   </Target>
-  <Target Name="ShadowMap:Clean">
-    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="Clean" />
+  <Target Name="BasicGui2007:Clean">
+    <MSBuild Projects="BasicGui\BasicGui2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="ShadowMap:Make">
-    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="Make" />
+  <Target Name="BasicGui2007:Make">
+    <MSBuild Projects="BasicGui\BasicGui2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="BasicGui">
-    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="" />
+  <Target Name="Physic_d2007">
+    <MSBuild Projects="1xp5_Physics\Physic_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="BasicGui:Clean">
-    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="Clean" />
+  <Target Name="Physic_d2007:Clean">
+    <MSBuild Projects="1xp5_Physics\Physic_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="BasicGui:Make">
-    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="Make" />
+  <Target Name="Physic_d2007:Make">
+    <MSBuild Projects="1xp5_Physics\Physic_d2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="Landscape">
-    <MSBuild Projects="Landscape\Landscape.dproj" Targets="" />
+  <Target Name="BasicShdr_d2007">
+    <MSBuild Projects="BasicShdr\BasicShdr_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="Landscape:Clean">
-    <MSBuild Projects="Landscape\Landscape.dproj" Targets="Clean" />
+  <Target Name="BasicShdr_d2007:Clean">
+    <MSBuild Projects="BasicShdr\BasicShdr_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="Landscape:Make">
-    <MSBuild Projects="Landscape\Landscape.dproj" Targets="Make" />
+  <Target Name="BasicShdr_d2007:Make">
+    <MSBuild Projects="BasicShdr\BasicShdr_d2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="TargetsNPanels">
-    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="" />
+  <Target Name="BumpMapping_d2007">
+    <MSBuild Projects="BumpMapping\BumpMapping_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="TargetsNPanels:Clean">
-    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="Clean" />
+  <Target Name="BumpMapping_d2007:Clean">
+    <MSBuild Projects="BumpMapping\BumpMapping_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="TargetsNPanels:Make">
-    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="Make" />
+  <Target Name="BumpMapping_d2007:Make">
+    <MSBuild Projects="BumpMapping\BumpMapping_d2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="BasicShdr">
-    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="" />
+  <Target Name="Landscape_D2007">
+    <MSBuild Projects="Landscape\Landscape_D2007.dproj" Targets="" />
   </Target>
-  <Target Name="BasicShdr:Clean">
-    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="Clean" />
+  <Target Name="Landscape_D2007:Clean">
+    <MSBuild Projects="Landscape\Landscape_D2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="BasicShdr:Make">
-    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="Make" />
+  <Target Name="Landscape_D2007:Make">
+    <MSBuild Projects="Landscape\Landscape_D2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="BumpMapping">
-    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="" />
+  <Target Name="Plasma_d2007">
+    <MSBuild Projects="Plasma\Plasma_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="BumpMapping:Clean">
-    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="Clean" />
+  <Target Name="Plasma_d2007:Clean">
+    <MSBuild Projects="Plasma\Plasma_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="BumpMapping:Make">
-    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="Make" />
+  <Target Name="Plasma_d2007:Make">
+    <MSBuild Projects="Plasma\Plasma_d2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="Plasma">
-    <MSBuild Projects="Plasma\Plasma.dproj" Targets="" />
+  <Target Name="ShadowMap_d2007">
+    <MSBuild Projects="ShadowMap\ShadowMap_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="Plasma:Clean">
-    <MSBuild Projects="Plasma\Plasma.dproj" Targets="Clean" />
+  <Target Name="ShadowMap_d2007:Clean">
+    <MSBuild Projects="ShadowMap\ShadowMap_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="Plasma:Make">
-    <MSBuild Projects="Plasma\Plasma.dproj" Targets="Make" />
+  <Target Name="ShadowMap_d2007:Make">
+    <MSBuild Projects="ShadowMap\ShadowMap_d2007.dproj" Targets="Make" />
   </Target>
-  <Target Name="Physic">
-    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="" />
+  <Target Name="TargetsNPanels_d2007">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels_d2007.dproj" Targets="" />
   </Target>
-  <Target Name="Physic:Clean">
-    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="Clean" />
+  <Target Name="TargetsNPanels_d2007:Clean">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels_d2007.dproj" Targets="Clean" />
   </Target>
-  <Target Name="Physic:Make">
-    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="Make" />
+  <Target Name="TargetsNPanels_d2007:Make">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels_d2007.dproj" Targets="Make" />
   </Target>
   <Target Name="Build">
-    <CallTarget Targets="ShadowMap;BasicGui;Landscape;TargetsNPanels;BasicShdr;BumpMapping;Plasma;Physic" />
+    <CallTarget Targets="BasicGui2007;Physic_d2007;BasicShdr_d2007;BumpMapping_d2007;Landscape_D2007;Plasma_d2007;ShadowMap_d2007;TargetsNPanels_d2007" />
   </Target>
   <Target Name="Clean">
-    <CallTarget Targets="ShadowMap:Clean;BasicGui:Clean;Landscape:Clean;TargetsNPanels:Clean;BasicShdr:Clean;BumpMapping:Clean;Plasma:Clean;Physic:Clean" />
+    <CallTarget Targets="BasicGui2007:Clean;Physic_d2007:Clean;BasicShdr_d2007:Clean;BumpMapping_d2007:Clean;Landscape_D2007:Clean;Plasma_d2007:Clean;ShadowMap_d2007:Clean;TargetsNPanels_d2007:Clean" />
   </Target>
   <Target Name="Make">
-    <CallTarget Targets="ShadowMap:Make;BasicGui:Make;Landscape:Make;TargetsNPanels:Make;BasicShdr:Make;BumpMapping:Make;Plasma:Make;Physic:Make" />
+    <CallTarget Targets="BasicGui2007:Make;Physic_d2007:Make;BasicShdr_d2007:Make;BumpMapping_d2007:Make;Landscape_D2007:Make;Plasma_d2007:Make;ShadowMap_d2007:Make;TargetsNPanels_d2007:Make" />
   </Target>
   <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
 </Project>
