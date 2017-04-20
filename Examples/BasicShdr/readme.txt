@@ -1,0 +1,1 @@
+This example requires "Newton.dll" that is located in Asphyre \DLLs folder.

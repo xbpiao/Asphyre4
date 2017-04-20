@@ -1,0 +1,45 @@
+<unires>
+
+<!-- 
+
+ This is rather short description file, which omits many of the
+ available options, expecting to use the default values there.
+ 
+ -->
+ 
+<!-- Description of used images --> 
+ <image-group name="default">
+ 
+  <!-- "water" texture used to render the terrain --> 
+  <image uid="water" type="image">
+   <format type="R5G6B5" miplevels="auto" />
+   
+   <textures count="1">
+    <texture num="0" source="water.jpeg" />    
+   </textures>
+  </image>
+      
+ <!-- the image used to display our bitmap font --> 	  
+  <image uid="x/squired" type="image">
+   <format type="DXT3" miplevels="1" />
+   
+   <textures count="5">
+    <texture num="0" source="/../fonts/squiredtex0.dds" />
+    <texture num="1" source="/../fonts/squiredtex1.dds" />
+	<texture num="2" source="/../fonts/squiredtex2.dds" />
+	<texture num="3" source="/../fonts/squiredtex3.dds" />
+	<texture num="4" source="/../fonts/squiredtex4.dds" />
+   </textures>
+  </image>   
+    
+ </image-group>
+  
+<!-- Description of used fonts --> 
+<font-group name="default">
+   
+ <!-- Squired Font -->
+ <font uid="x/squired" type="bitmap" image="x/Squired" space="0.5" desc="/../fonts/squired.xml" />
+  
+</font-group>
+  
+</unires>

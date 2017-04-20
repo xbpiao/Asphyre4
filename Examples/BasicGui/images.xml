@@ -1,0 +1,94 @@
+<unires>
+
+ <image-group name="/images/base" option="normal">
+ 
+ <!-- Font Images used by GuiDesigner -->
+ <image uid="x/arialblack" type="image">
+   <format type="A8L8" miplevels="1" />
+   
+   <textures count="1">
+    <texture num="0" source="/fonts/arialblack.dds" />
+   </textures>
+  </image>
+  
+<image uid="gui:form" type="image">
+ <format type="A8R8G8B8" miplevels="1" />
+ <pattern width="512" height="256" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="form.png" />    
+ </textures>
+</image>
+
+<image uid="gui:controls" type="image">
+ <format type="A8R8G8B8" miplevels="1" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="controls.png" />    
+ </textures>
+</image>
+
+
+<image uid="gui:canvas" type="surface">
+ <format type="A8R8G8B8" miplevels="1" depthstencil="no" />
+ <pattern width="512" height="256" count="1" padx="0" pady="0" />
+ <size width="512" height="256" />
+</image>  
+
+<!-- SmallPaulo Font -->
+ 
+  <image uid="font:bookantiqua" type="image">
+   <format type="A8L8" miplevels="1" />
+   
+   <textures count="1">
+    <texture num="0" source="/../fonts/bookantiquatex.dds" />
+   </textures>
+  </image>  
+
+  
+  <image uid="font:warmachine" type="image">
+   <format type="DXT3" miplevels="1" />
+   <pattern width="31" height="22" count="95" padx="2" pady="2" />
+   
+   <textures count="2">
+    <texture num="0" source="/../fonts/warmachine14btex0.dds" />
+    <texture num="1" source="/../fonts/warmachine14btex1.dds" />
+   </textures>
+  </image>  
+  
+<!-- SmallPaulo Font -->
+ 
+  <image uid="font:smallpaulo" type="image">
+   <format type="A8L8" miplevels="1" />
+   <pattern width="11" height="11" count="95" padx="2" pady="2" />
+   
+   <textures count="1">
+    <texture num="0" source="/../fonts/smallpaulotex.dds" />
+   </textures>
+  </image>  
+  
+ <!-- Unused stuff -->
+  
+ <image uid="material1.jpg" type="image">
+   <format type="A8R8G8B8" miplevels="auto" />
+   <pattern width="256" height="256" count="1" padx="0" pady="0" />
+   
+   <textures count="1">
+    <texture num="0" source="material1.jpg" />    
+   </textures>
+  </image>
+
+  <image uid="lenna.jpg" type="image">
+   <format type="R5G6B5" miplevels="1" />
+   
+   <textures count="1">
+    <texture num="0" source="lenna.jpg" />    
+   </textures>
+  </image>
+    
+  
+  
+ </image-group>
+  
+</unires>

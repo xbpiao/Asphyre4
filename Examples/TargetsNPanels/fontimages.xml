@@ -1,0 +1,54 @@
+<unires>
+
+ <!-- 
+
+ All font images are defined in the separate file to avoid the
+ confusion with the ingame graphics. They, however, will share
+ the same description and image space. You don't need to
+ explicitly load these images, they will be loaded when a new
+ font instance is being created.
+ 
+ -->
+ 
+ <image-group name="/images/fonts" option="normal">
+
+<!-- SmallPaulo Font -->
+ 
+  <image uid="x/smallpaulo" type="image">
+   <format type="A8L8" miplevels="1" />
+   <pattern width="11" height="11" count="95" padx="2" pady="2" />
+   
+   <textures count="1">
+    <texture num="0" source="/../fonts/smallpaulotex.dds" />
+   </textures>
+  </image>
+
+  <!-- Acidreamer Font -->
+ 
+  <image uid="x/acidreamer" type="image">
+   <format type="DXT3" miplevels="1" />
+   <pattern width="38" height="20" count="95" padx="2" pady="2" />
+   
+   <textures count="3">
+    <texture num="0" source="/../fonts/acidreamertex0.dds" />
+	<texture num="1" source="/../fonts/acidreamertex1.dds" />
+	<texture num="2" source="/../fonts/acidreamertex2.dds" />
+   </textures>
+  </image>
+
+<!-- WarMachine Font -->
+  
+  <image uid="/fonts/warmachine14b" type="image">
+   <format type="DXT3" miplevels="1" />
+   <pattern width="31" height="22" count="95" padx="2" pady="2" />
+   
+   <textures count="2">
+    <texture num="0" source="/../fonts/warmachine14btex0.dds" />
+    <texture num="1" source="/../fonts/warmachine14btex1.dds" />
+   </textures>
+  </image>
+  
+ </image-group>
+ 
+ 
+</unires>

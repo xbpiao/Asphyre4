@@ -1,0 +1,122 @@
+<unires>
+
+<!--------------------------------------------------------------------------->
+<!-- AsphyreGUI polygonal shape declaration                                -->
+<!--------------------------------------------------------------------------->
+<shapes>
+ 
+<!--------------------------------------------------------------------------->
+<!-- Window Shape (used with TGuiForm)                                     -->
+<!--------------------------------------------------------------------------->
+<!-- This is the complete area of the window. It defines what parts of the
+     window are clickable. The space owned by child controls that lie 
+	 outside of this area will not be accessible. This is like "cutting"
+	 the control with its parent shape                                     -->
+ <shape name="form:full">  
+<!-- Note that number of vertices in the following declaration must match
+     the number of vertices declared after it, sequentially.               --> 
+  <polygon vertices="18"> 
+<!-- The following tags declare the polygonal shape in clockwise order.
+     Notice that the first and last vertices will be connected to make
+     the closed shape. These coordinates are in pixels.                    -->	 
+   <vertex index="0" x="32" y="16" />  
+   <vertex index="1" x="304" y="16" />  
+   <vertex index="2" x="335" y="48" />  
+   <vertex index="3" x="407" y="48" />  
+   <vertex index="4" x="431" y="32" />  
+   <vertex index="5" x="489" y="32" />  
+   <vertex index="6" x="489" y="97" />  
+   <vertex index="7" x="480" y="111" />  
+   <vertex index="8" x="480" y="161" />  
+   <vertex index="9" x="488" y="175" />  
+   <vertex index="10" x="488" y="240" />  
+   <vertex index="11" x="431" y="240" />  
+   <vertex index="12" x="408" y="224" />  
+   <vertex index="13" x="103" y="224" />  
+   <vertex index="14" x="80" y="240" />  
+   <vertex index="15" x="24" y="240" />  
+   <vertex index="16" x="24" y="175" />  
+   <vertex index="17" x="32" y="160" />  
+  </polygon>
+<!-- Since it is easy to select the above set of vertices from the image,
+     the actual image may not appear at position (0, 0). In the case, when
+	 control is at position (0, 0), it will be displaced as the result of
+	 image being at non-zero position. Below we fix it by displacing the
+	 above set of vertices back to zero position. This is the same as
+	 adding the following values to the vertex coordinates.                -->
+  <moveby x="-24" y="-16" />
+<!-- Below we can apply custom scaling to the control, which will lose
+     pixel accuracy, but will make the control look smaller or bigger.     -->
+  <rescale x="65536" y="65536" />
+ </shape>
+ 
+<!-- This is the area that will be used to "drag" the window around.       -->
+ <shape name="form:drag">
+  <polygon vertices="4">
+   <vertex index="0" x="32" y="16" />  
+   <vertex index="1" x="304" y="16" />  
+   <vertex index="2" x="335" y="48" />  
+   <vertex index="3" x="32" y="48" />  
+  </polygon>
+  <polygon vertices="6">
+   <vertex index="0" x="407" y="48" />  
+   <vertex index="1" x="431" y="32" />  
+   <vertex index="2" x="489" y="32" />  
+   <vertex index="3" x="489" y="97" />  
+   <vertex index="4" x="480" y="111" />  
+   <vertex index="5" x="480" y="48" />  
+  </polygon>
+  <polygon vertices="6">
+   <vertex index="0" x="480" y="161" />  
+   <vertex index="1" x="488" y="175" />  
+   <vertex index="2" x="488" y="240" />  
+   <vertex index="3" x="431" y="240" />  
+   <vertex index="4" x="408" y="224" />  
+   <vertex index="5" x="480" y="224" />     
+  </polygon>
+  <polygon vertices="6">
+   <vertex index="0" x="103" y="224" />  
+   <vertex index="1" x="80" y="240" />  
+   <vertex index="2" x="24" y="240" />  
+   <vertex index="3" x="24" y="175" />  
+   <vertex index="4" x="32" y="160" />  
+   <vertex index="5" x="32" y="224" />  
+  </polygon>
+  <moveby x="-24" y="-16" />
+  <rescale x="65536" y="65536" />
+ </shape>
+ 
+<!-- This is the complete area covered by edit box.                        --> 
+ <shape name="editbox">
+  <polygon vertices="10">
+   <vertex index="0" x="16" y="48" />  
+   <vertex index="1" x="8" y="32" />  
+   <vertex index="2" x="8" y="8" />  
+   <vertex index="3" x="60" y="8" />  
+   <vertex index="4" x="96" y="16" />  
+   <vertex index="5" x="144" y="16" />  
+   <vertex index="6" x="152" y="32" />  
+   <vertex index="7" x="152" y="56" />  
+   <vertex index="8" x="96" y="56" />  
+   <vertex index="9" x="64" y="48" />     
+  </polygon>  
+ <moveby x="-8" y="-8" />
+ <rescale x="65536" y="65536" />
+</shape>
+
+<!-- The area covering button                                              --> 
+ <shape name="button">
+  <polygon vertices="4">
+   <vertex index="0" x="8" y="64" />  
+   <vertex index="1" x="144" y="64" />  
+   <vertex index="2" x="144" y="96" />  
+   <vertex index="3" x="8" y="96" />  
+  </polygon>  
+ <moveby x="-8" y="-64" />
+ <rescale x="65536" y="65536" />
+</shape>
+
+
+</shapes>
+
+</unires>

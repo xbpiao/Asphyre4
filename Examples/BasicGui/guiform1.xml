@@ -1,0 +1,181 @@
+<unires>
+
+<!--------------------------------------------------------------------------->
+<!-- AsphyreGUI control declaration                                        -->
+<!--------------------------------------------------------------------------->
+<agui>
+
+<!--------------------------------------------------------------------------->
+<!-- Form1: TGuiForm                                                       -->
+<!--------------------------------------------------------------------------->
+<control class="TGuiForm" name="Form1">
+<!-- The following are properties that can be set in the control. 
+     This is equivalent to calling MyControl.Property:= Value. Note that 
+	 some values here are represented in extended way like colors, which 
+	 have two separate parts - actual color and its alpha channel.       -->
+ <property name="Shape" text="form:full" />
+ <property name="DragShape" text="form:drag" />
+ <property name="CaptRect" x="16" y="0" width="256" height="32" />
+ <property name="CaptFont" text="BookAntiqua" />
+ <property name="CaptColor" color="#F0DEBF" alpha="128" />
+ <property name="Caption" text="Application Window" />
+ <property name="CaptHAlign" align="left" />
+ <property name="Enabled" value="yes" />
+ <property name="Visible" value="yes" />
+ <property name="CaptOpt">
+  <text kerning="-3" scale="65536" dx="0" dy="3" />
+  <shadow show="no" alpha="128" dx="2" dy="2" />
+ </property> 
+ <property name="Skin">
+  <normal skin="gui:form" left="24" top="16" right="489" bottom="240" />
+<!-- Additional skins can be set for different control states. 
+     You can use tags "over", "disabled", "focused" and "down" here too. -->
+ </property>
+ 
+<!-- Below are the child controls owned by the current control. The same
+     declaration is used here, making tree-like control structure.       -->
+<!--------------------------------------------------------------------------->
+<!-- Edit1: TGuiEdit | Form1: TGuiForm                                     -->
+<!--------------------------------------------------------------------------->
+ <control class="TGuiEdit" name="Edit1">
+  <property name="Shape" text="editbox" />
+  <property name="Origin" x="50" y="55" />
+  <property name="Enabled" value="yes" />
+  <property name="Visible" value="yes" />
+  <property name="Text" text="First name" />
+  <property name="TextFont" text="BookAntiqua" />
+  <property name="TextRect" x="8" y="8" width="128" height="32" />
+  <property name="SideSpace" value="4" />
+  <property name="CaretColor" color="#CAAC67" alpha="255" />
+  <property name="SelectColor" color="#FF3300" alpha="255" />
+  <property name="TextOpt">
+   <text kerning="-3" scale="65536" dx="0" dy="3" />
+   <shadow show="no" alpha="128" dx="2" dy="2" />
+  </property>
+  <property name="Skin">
+   <normal skin="gui:controls" left="8" top="8" right="152" bottom="56" />
+   <over skin="gui:controls" left="160" top="8" right="304" bottom="56" />
+   <focused skin="gui:controls" left="312" top="8" right="456" bottom="56" />
+<!-- Additional skins can be set for different control states. 
+     You can use tags "disabled" and "down" here too. -->
+  </property>
+  <property name="TextCol">
+   <normal color="#DED1B4" alpha="192" />
+<!-- Additional colors can be specified here for different control states. 
+     You can also use tags "over", "down", "focused", and "disabled" here too. -->
+  </property>
+
+<!--------------------------------------------------------------------------->
+ </control><!-- the end of TGuiEdit -->
+
+<!--------------------------------------------------------------------------->
+<!-- Edit2: TGuiEdit | Form1: TGuiForm                                     -->
+<!--------------------------------------------------------------------------->
+ <control class="TGuiEdit" name="Edit2">
+  <property name="Shape" text="editbox" />
+  <property name="Origin" x="240" y="55" />
+  <property name="Enabled" value="yes" />
+  <property name="Visible" value="yes" />
+  <property name="Text" text="Second name" />
+  <property name="TextFont" text="BookAntiqua" />
+  <property name="TextRect" x="8" y="8" width="128" height="32" />
+  <property name="SideSpace" value="4" />
+  <property name="CaretColor" color="#CAAC67" alpha="255" />
+  <property name="SelectColor" color="#FF3300" alpha="255" />
+  <property name="TextOpt">
+   <text kerning="-3" scale="65536" dx="0" dy="3" />
+   <shadow show="no" alpha="128" dx="2" dy="2" />
+  </property>
+  <property name="Skin">
+   <normal skin="gui:controls" left="8" top="8" right="152" bottom="56" />
+   <over skin="gui:controls" left="160" top="8" right="304" bottom="56" />
+   <focused skin="gui:controls" left="312" top="8" right="456" bottom="56" />
+<!-- Additional skins can be set for different control states. 
+     You can use tags "disabled" and "down" here too. -->
+  </property>
+  <property name="TextCol">
+   <normal color="#DED1B4" alpha="192" />
+<!-- Additional colors can be specified here for different control states. 
+     You can also use tags "over", "down", "focused", and "disabled" here too. -->
+  </property>
+
+<!--------------------------------------------------------------------------->
+ </control><!-- the end of TGuiEdit -->
+
+<!--------------------------------------------------------------------------->
+<!-- Button1: TGuiButton | Form1: TGuiForm                                 -->
+<!--------------------------------------------------------------------------->
+ <control class="TGuiButton" name="Button1">
+  <property name="Shape" text="button" />
+  <property name="CaptRect" x="0" y="0" width="136" height="32" />
+  <property name="CaptFont" text="BookAntiqua" />
+  <property name="CaptColor" color="#F0DEBF" alpha="128" />
+  <property name="Origin" x="80" y="140" />
+  <property name="Caption" text="OK" />
+  <property name="CaptHAlign" align="center" />
+  <property name="CaptVAlign" align="center" />
+  <property name="Enabled" value="yes" />
+  <property name="Visible" value="yes" />
+  <property name="CaptOpt">
+   <text kerning="-3" scale="65536" dx="0" dy="3" />
+   <shadow show="no" alpha="128" dx="2" dy="2" />
+  </property> 
+  <property name="Skin">
+   <normal skin="gui:controls" left="328" top="64" right="464" bottom="96" />
+   <focused skin="gui:controls" left="328" top="64" right="464" bottom="96" />
+   <over skin="gui:controls" left="8" top="64" right="144" bottom="96" />
+   <down skin="gui:controls" left="168" top="64" right="304" bottom="96" />
+<!-- Additional skins can be set for different control states. 
+     You can use tags "over", "disabled", "focused" and "down" here too. -->
+ </property>
+  <property name="CaptCol">
+   <normal color="#F0E3C7" alpha="192" />
+   <down color="#DED1B4" alpha="192" />
+<!-- Additional colors can be specified here for different control states. 
+     You can also use tags "over", "down", "focused", and "disabled" here too. -->
+  </property>
+<!--------------------------------------------------------------------------->
+ </control><!-- the end of TGuiButton -->
+ 
+<!--------------------------------------------------------------------------->
+<!-- Button2: TGuiButton | Form1: TGuiForm                                 -->
+<!--------------------------------------------------------------------------->
+<control class="TGuiButton" name="Button2">
+  <property name="Shape" text="button" />
+  <property name="CaptRect" x="0" y="0" width="136" height="32" />
+  <property name="CaptFont" text="BookAntiqua" />
+  <property name="CaptColor" color="#F0DEBF" alpha="128" />
+  <property name="Origin" x="250" y="140" />
+  <property name="Caption" text="Cancel" />
+  <property name="CaptHAlign" align="center" />
+  <property name="CaptVAlign" align="center" />
+  <property name="Enabled" value="yes" />
+  <property name="Visible" value="yes" />
+  <property name="CaptOpt">
+   <text kerning="-3" scale="65536" dx="0" dy="3" />
+   <shadow show="no" alpha="128" dx="2" dy="2" />
+  </property> 
+  <property name="Skin">
+   <normal skin="gui:controls" left="328" top="64" right="464" bottom="96" />
+   <focused skin="gui:controls" left="328" top="64" right="464" bottom="96" />
+   <over skin="gui:controls" left="8" top="64" right="144" bottom="96" />
+   <down skin="gui:controls" left="168" top="64" right="304" bottom="96" />
+<!-- Additional skins can be set for different control states. 
+     You can use tags "over", "disabled", "focused" and "down" here too. -->
+ </property>
+  <property name="CaptCol">
+   <normal color="#F0E3C7" alpha="192" />
+   <down color="#DED1B4" alpha="192" />
+<!-- Additional colors can be specified here for different control states. 
+     You can also use tags "over", "down", "focused", and "disabled" here too. -->
+  </property>
+<!--------------------------------------------------------------------------->
+ </control><!-- the end of TGuiButton -->
+  
+<!--------------------------------------------------------------------------->
+</control><!-- the end of TGuiForm -->
+
+<!--------------------------------------------------------------------------->
+</agui>
+
+</unires>

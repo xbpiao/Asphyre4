@@ -1,0 +1,23 @@
+<unires>
+<image-group name="all" option="normal_quality">
+   
+<image uid="metal" type="image">
+ <format type="R5G6B5" miplevels="auto" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="sngl_t01.jpg" />
+ </textures>
+</image>
+
+<image uid="metal_normal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="sngl_n01.jpg" />
+ </textures>
+</image>
+ 
+</image-group>
+</unires>

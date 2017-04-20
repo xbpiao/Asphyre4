@@ -1,0 +1,24 @@
+<unires>
+
+<!-- 
+
+ This is a general font description mechanism. It specifies
+ the font size, the UID of font image and the location of its
+ description file.
+ 
+ -->
+ 
+<font-group name="/fonts/all" option="normal">
+   
+ <!-- WarMachineB Font -->
+ <font uid="x/warmachine" type="bitmap" image="/fonts/warmachine14b" space="0.3" desc="/../fonts/warmachine14b.xml" />
+ 
+ <!-- SmallPaulo Font -->
+ <font uid="x/smallpaulo" type="bitmap" image="x/smallpaulo" space="0.3" desc="/../fonts/smallpaulo.xml" />
+ 
+ <!-- Acidreamer -->
+ <font uid="x/acidreamer" type="bitmap" image="x/acidreamer" space="0.32" desc="/../fonts/acidreamer.xml" />
+  
+</font-group>
+ 
+</unires>

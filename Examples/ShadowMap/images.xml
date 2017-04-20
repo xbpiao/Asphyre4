@@ -1,0 +1,101 @@
+<unires>
+<image-group name="all" option="normal_quality">
+
+<image uid="shadowmap" type="surface">
+ <format type="R32F" miplevels="1" depthstencil="yes" />
+ <size width="512" height="512" />
+</image>
+
+<image uid="ScreenShadow" type="surface">
+ <format type="X8R8G8B8" miplevels="1" depthstencil="yes" />
+ <size width="512" height="512" />
+</image>
+
+<image uid="Smiley" type="image">
+ <format type="R5G6B5" miplevels="1" />
+   
+ <textures count="1">
+  <texture num="0" source="smiley.jpg" />
+ </textures>
+</image>
+
+<image uid="Floor" type="image">
+ <format type="R5G6B5" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="metl_t01.jpg" />
+ </textures>
+</image>
+
+<image uid="FloorNormal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="metl_n01.jpg" />
+ </textures>
+</image>
+
+<image uid="Knot" type="image">
+ <format type="R5G6B5" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="stwl_t06.jpg" />
+ </textures>
+</image>
+
+<image uid="KnotNormal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="stwl_n06.jpg" />
+ </textures>
+</image>
+
+<image uid="Super" type="image">
+ <format type="R5G6B5" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="mrbl_t02.jpg" />
+ </textures>
+</image>
+
+<image uid="SuperNormal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+   
+ <textures count="1">
+  <texture num="0" source="mrbl_n02.jpg" />
+ </textures>
+</image>
+
+
+<image uid="metal_normal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="metal_normal.dds" />    
+ </textures>
+</image>
+
+
+  
+<image uid="metal" type="image">
+ <format type="R5G6B5" miplevels="auto" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="metal.dds" />    
+ </textures>
+</image>
+
+<image uid="metal_normal" type="image">
+ <format type="X8R8G8B8" miplevels="auto" />
+ <pattern width="512" height="512" count="1" padx="0" pady="0" />
+   
+ <textures count="1">
+  <texture num="0" source="metal_normal.dds" />    
+ </textures>
+</image>
+ 
+</image-group>
+</unires>

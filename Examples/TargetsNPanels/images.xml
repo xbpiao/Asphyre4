@@ -1,0 +1,40 @@
+<unires>
+
+ <!-- 
+ 
+ The following is the description of images used by the application.
+ Notice that images are loaded on per-request basis, using one of 
+ the following calls: ResolveImage(), Image property, 
+ 
+ -->
+ <image-group name="/images/base" option="normal">
+ 
+  <image uid="draw-1" type="surface">
+   <format type="A8R8G8B8" miplevels="auto" depthstencil="no" />
+   <size width="256" height="256" />
+  </image>
+  
+  <image uid="draw-2" type="surface">
+   <format type="A8R8G8B8" miplevels="auto" depthstencil="no" />
+   <size width="256" height="256" />
+  </image>
+  
+  <image uid="mix-1" type="surface">
+   <format type="A8R8G8B8" miplevels="auto" depthstencil="no" />
+   <size width="256" height="256" />
+  </image>
+  
+  <image uid="mix-2" type="surface">
+   <format type="A8R8G8B8" miplevels="auto" depthstencil="no" />
+   <size width="256" height="256" />
+  </image>
+   
+  <image uid="/surfaces/dynamictex0" type="dynamic">
+   <format type="A8R8G8B8" miplevels="1" />
+   <size width="256" height="256" />
+  </image>
+  
+  
+ </image-group>
+  
+</unires>

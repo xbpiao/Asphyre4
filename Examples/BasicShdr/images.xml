@@ -1,0 +1,10 @@
+<unires>
+<image-group name="/images/base" option="normal">
+ 
+<image uid="ShadowMap" type="surface">
+ <format type="R32F" miplevels="1" depthstencil="yes" />
+ <size width="512" height="512" />
+</image>
+    
+</image-group>
+</unires>

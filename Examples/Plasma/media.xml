@@ -1,0 +1,44 @@
+<unires>
+
+ <!-- 
+ 
+ The following is the description of images used by the application.
+ Notice that images are loaded on per-request basis, using one of 
+ the following calls: ResolveImage(), Image property, 
+ 
+ -->
+ <image-group name="/images/base" option="normal">
+ 
+  <image uid="scanline" type="image">
+   <format type="L8" miplevels="1" />
+   
+   <textures count="1">
+    <texture num="0" source="scanline.png" />    
+   </textures>
+  </image>
+  
+  <image uid="pixelcanvas" type="draft">
+   <format type="X8R8G8B8" miplevels="1" />
+   <size width="256" height="256" />
+  </image>
+    
+ <!-- the image used to display our bitmap font --> 	  
+  <image uid="x/tranceform" type="image">
+   <format type="A8L8" miplevels="1" />
+   
+   <textures count="1">
+    <texture num="0" source="/../fonts/tranceformtex.dds" />    
+   </textures>
+  </image>   
+		
+ </image-group>
+  
+<!-- Description of used fonts --> 
+<font-group name="default">
+   
+ <!-- Tranceform Font -->
+ <font uid="x/tranceform" type="bitmap" image="x/tranceform" space="0.5" desc="/../fonts/tranceform.xml" />
+  
+</font-group>
+    
+</unires>
