@@ -36,11 +36,21 @@ unit AsphyreCanvas;
 //---------------------------------------------------------------------------
 interface
 
+{
+  Add 2007-8-22 10:40:56 by Xiebin 由于在Dx8中没有ID3DXLine因此使用AsphyreUseDx8时要
+    重新用替代方案绘制
+}
+
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, Types, Vectors2, Vectors2px, AsphyreColors,
+ Windows, Types, Vectors2, Vectors2px, AsphyreColors,
  AsphyreTypes, AsphyreUtils, AsphyreEvents, AsphyreEffects, AsphyreTextures,
- AsphyreImages, AsphyrePalettes;
+ AsphyreImages, AsphyrePalettes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 // The following options control the way how primitives are rendered.
@@ -98,10 +108,15 @@ type
  TAsphyreCanvas = class
  private
   FDevice: TObject;
-
+  {$IFDEF AsphyreUseDx8}
+  VertexBuffer: IDirect3DVertexBuffer8;
+  IndexBuffer : IDirect3DIndexBuffer8;
+  //DXLine      : ID3DXLine;
+  {$ELSE}
   VertexBuffer: IDirect3DVertexBuffer9;
   IndexBuffer : IDirect3DIndexBuffer9;
   DXLine      : ID3DXLine;
+  {$ENDIF}
 
   VertexArray : Pointer;
   IndexArray  : Pointer;
@@ -172,6 +187,9 @@ type
   procedure RequestCache(Mode: TDrawingMode; Indexed: Boolean; Vertices,
    Indices, DrawFx: Integer; ReqTex: TAsphyreCustomTexture); virtual;
  public
+  { 将已经绘制的缓冲清空，即取消 }
+  procedure ClearCache();
+
   // This property should always point to a valid and active TAsphyreDevice.
   property Device: TObject read FDevice;
 
@@ -349,6 +367,7 @@ uses
 
 //--------------------------------------------------------------------------
 const
+ { 注意D3DFVF_XYZRHW描述的是经过坐标变换的顶点坐标 }
  VertexType = D3DFVF_XYZRHW or D3DFVF_DIFFUSE or D3DFVF_TEX1;
 
 //--------------------------------------------------------------------------
@@ -403,7 +422,11 @@ end;
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.InitCacheSpec();
 begin
- with TAsphyreDevice(FDevice).Caps9 do
+  {$IFDEF AsphyreUseDx8}
+  with TAsphyreDevice(FDevice).Caps8 do
+  {$ELSE}
+  with TAsphyreDevice(FDevice).Caps9 do
+  {$ENDIF}
   begin
    FMaxPrimitives:= Min2(MaxPrimitiveCount, MaxCachedPrimitives);
    FVertexCache:= Min2(MaxVertexIndex, MaxCachedVertices);
@@ -432,6 +455,8 @@ end;
 //---------------------------------------------------------------------------
 function TAsphyreCanvas.CreateStaticObjects(): Boolean;
 begin
+ {$IFDEF AsphyreUseDx8}
+ {$ELSE}
  // -> D3DXLine object
  Result:= Succeeded(D3DXCreateLine(TAsphyreDevice(FDevice).Dev9,
   DXLine));
@@ -440,7 +465,8 @@ begin
  // -> Enable DX3DXLine Antialiasing by default
  Result:= Succeeded(DXLine.SetAntialias(True));
  if (not Result) then Exit;
- 
+ {$ENDIF}
+
  // -> Static Arrays
  ReallocMem(VertexArray, FVertexCache * SizeOf(TVertexRecord));
  FillChar(VertexArray^, FVertexCache * SizeOf(TVertexRecord), 0);
@@ -465,8 +491,10 @@ begin
    FreeMem(VertexArray);
    VertexArray:= nil;
   end;
-
+ {$IFDEF AsphyreUseDx8}
+ {$ELSE}
  if (DXLine <> nil) then DXLine:= nil;
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -490,6 +518,21 @@ begin
 end;
 
 //--------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreCanvas.CreateDynamicBuffers(): Boolean;
+begin
+ // -> Dynamic Vertex Buffer
+ Result:= Succeeded(TAsphyreDevice(FDevice).Dev8.CreateVertexBuffer(FVertexCache *
+  SizeOf(TVertexRecord), D3DUSAGE_WRITEONLY or D3DUSAGE_DYNAMIC, VertexType,
+  D3DPOOL_DEFAULT, VertexBuffer));
+ if (not Result) then Exit;
+
+ // -> Dynamic Index Buffer
+ Result:= Succeeded(TAsphyreDevice(FDevice).Dev8.CreateIndexBuffer(FIndexCache *
+  SizeOf(Word), D3DUSAGE_WRITEONLY or D3DUSAGE_DYNAMIC, D3DFMT_INDEX16,
+  D3DPOOL_DEFAULT, IndexBuffer));
+end;
+{$ELSE}
 function TAsphyreCanvas.CreateDynamicBuffers(): Boolean;
 begin
  // -> Dynamic Vertex Buffer
@@ -503,7 +546,7 @@ begin
   SizeOf(Word), D3DUSAGE_WRITEONLY or D3DUSAGE_DYNAMIC, D3DFMT_INDEX16,
   D3DPOOL_DEFAULT, IndexBuffer, nil));
 end;
-
+{$ENDIF}
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.DestroyDynamicBuffers();
 begin
@@ -512,6 +555,64 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.ResetDeviceStates();
+begin
+ FVertexCount:= 0;
+ FIndexCount := 0;
+ FPrimitives := 0;
+ FDrawingMode:= dmUnspecified;
+
+ CachedDrawFx:= fxUndefined;
+ CachedTex   := nil;
+ ActiveTex   := nil;
+
+
+ with TAsphyreDevice(FDevice).Dev8 do
+  begin
+   //========================================================================
+   // In the following code, we try to disable any Direct3D states that might
+   // affect or disrupt our behavior.
+   //========================================================================
+   SetRenderState(D3DRS_LIGHTING,  iFalse);
+   SetRenderState(D3DRS_CULLMODE,  D3DCULL_NONE);
+   SetRenderState(D3DRS_ZENABLE,   D3DZB_FALSE);
+   SetRenderState(D3DRS_FOGENABLE, iFalse);
+
+   //SetRenderState(D3DRS_ANTIALIASEDLINEENABLE, iTrue);
+
+   SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+   SetRenderState(D3DRS_ALPHAREF, $00000001);
+   SetRenderState(D3DRS_ALPHATESTENABLE, iFalse);
+
+
+   SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+   SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+   SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+   SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+
+   SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+   SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+   SetTextureStageState(1, D3DTSS_COLORARG1, D3DTA_CURRENT);
+   SetTextureStageState(1, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+
+   SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);
+
+   SetTexture(0, nil);
+   SetTexture(1, nil);
+
+   //==========================================================================
+   // Update user-specified states.
+   //==========================================================================
+   SetDithering(FDithering);
+   SetAntialias(FAntialias);
+   SetMipMapping(FMipMapping);
+  end;
+
+ AfterFlush := False;
+ FCacheStall:= 0;
+end;
+{$ELSE}
 procedure TAsphyreCanvas.ResetDeviceStates();
 begin
  FVertexCount:= 0;
@@ -567,27 +668,65 @@ begin
  AfterFlush := False;
  FCacheStall:= 0;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.OnDeviceReset(Sender: TObject; EventParam: Pointer;
  var Success: Boolean);
 begin
- Success:= CreateDynamicBuffers();
- if (Success) then ResetDeviceStates();
+  Success:= CreateDynamicBuffers();
+  if (Success) then
+     ResetDeviceStates();
 
- if (Success)and(DXLine <> nil) then
+  {$IFNDEF AsphyreUseDx8}
+  if (Success)and(DXLine <> nil) then
   Success:= Succeeded(DXLine.OnResetDevice());
+  {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.OnDeviceLost(Sender: TObject; EventParam: Pointer;
  var Success: Boolean);
 begin
- DXLine.OnLostDevice();
+ {$IFNDEF AsphyreUseDx8}
+ if (DXLine <> nil) then
+   DXLine.OnLostDevice();
+ {$ENDIF}
  DestroyDynamicBuffers();
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.SetAntialias(const Value: TAntialiasType);
+begin { 晕呀DX8 没有SetSamplerState这些东西的 }
+ FAntialias:= Value;
+ if (FDevice = nil)or(not (FDevice is TAsphyreDevice))or
+  (TAsphyreDevice(FDevice).Dev8 = nil) then Exit;
+
+ ResetCache();
+
+ with TAsphyreDevice(FDevice).Dev8 do
+  case FAntialias of
+   atNone:
+    begin
+      SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+      SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+    end;
+
+   atNormal:
+    begin
+      SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+      SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+    end;
+
+   atBest:
+    begin
+      SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+      SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_ANISOTROPIC);
+    end;
+  end;
+end;
+{$ELSE}
 procedure TAsphyreCanvas.SetAntialias(const Value: TAntialiasType);
 begin
  FAntialias:= Value;
@@ -617,8 +756,31 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 //--------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.SetMipmapping(const Value: TMipmappingType);
+begin
+ FMipMapping:= Value;
+ if (FDevice = nil)or(not (FDevice is TAsphyreDevice))or
+  (TAsphyreDevice(FDevice).Dev8 = nil) then Exit;
+
+ ResetCache();
+
+ with TAsphyreDevice(FDevice).Dev8 do
+//  case FMipMapping of
+//   mtNone:
+//    SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+//
+//   mtSingle:
+//    SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+//
+//   mtSmooth:
+//    SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+//  end;
+end;
+{$ELSE}
 procedure TAsphyreCanvas.SetMipmapping(const Value: TMipmappingType);
 begin
  FMipMapping:= Value;
@@ -639,8 +801,21 @@ begin
     SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
   end;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.SetDithering(const Value: Boolean);
+begin
+ FDithering:= Value;
+ if (FDevice = nil)or(not (FDevice is TAsphyreDevice))or
+  (TAsphyreDevice(FDevice).Dev8 = nil) then Exit;
+
+ ResetCache();
+ TAsphyreDevice(FDevice).Dev8.SetRenderState(D3DRS_DITHERENABLE,
+  Cardinal(FDithering));
+end;
+{$ELSE}
 procedure TAsphyreCanvas.SetDithering(const Value: Boolean);
 begin
  FDithering:= Value;
@@ -651,39 +826,64 @@ begin
  TAsphyreDevice(FDevice).Dev9.SetRenderState(D3DRS_DITHERENABLE,
   Cardinal(FDithering));
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 function TAsphyreCanvas.GetLineAntialias(): Boolean;
 begin
- if (DXLine <> nil) then Result:= DXLine.GetAntialias()
-  else Result:= True;
+ {$IFDEF AsphyreUseDx8}
+   Result := True;
+ {$ELSE}
+ if (DXLine <> nil) then
+   Result:= DXLine.GetAntialias()
+ else
+   Result:= True;
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.SetLineAntialias(const Value: Boolean);
 begin
+ {$IFDEF AsphyreUseDx8}
+ {$ELSE}
  if (DXLine <> nil) then DXLine.SetAntialias(Value);
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 function TAsphyreCanvas.GetLineWidth(): Real;
 begin
- if (DXLine <> nil) then Result:= DXLine.GetWidth() else Result:= 1.0;
+ {$IFDEF AsphyreUseDx8}
+   Result:= 1.0;
+ {$ELSE}
+   if (DXLine <> nil) then
+     Result:= DXLine.GetWidth()
+   else
+     Result:= 1.0;
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.SetLineWidth(const Value: Real);
 begin
+ {$IFDEF AsphyreUseDx8}
+ {$ELSE}
  if (DXLine <> nil) then DXLine.SetWidth(Value);
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 function TAsphyreCanvas.UploadVertexBuffer(): Boolean;
 var
+ {$IFDEF AsphyreUseDx8}
+ MemAddr: PByte;
+ {$ELSE}
  MemAddr: Pointer;
+ {$ENDIF}
  BufSize: Integer;
 begin
  BufSize:= FVertexCount * SizeOf(TVertexRecord);
+ if VertexBuffer = nil then CreateDynamicBuffers();
  Result:= Succeeded(VertexBuffer.Lock(0, BufSize, MemAddr, D3DLOCK_DISCARD));
 
  if (Result) then
@@ -696,7 +896,11 @@ end;
 //---------------------------------------------------------------------------
 function TAsphyreCanvas.UploadIndexBuffer(): Boolean;
 var
+ {$IFDEF AsphyreUseDx8}
+ MemAddr: PByte;
+ {$ELSE}
  MemAddr: Pointer;
+ {$ENDIF}
  BufSize: Integer;
 begin
  BufSize:= FIndexCount * SizeOf(Word);
@@ -710,9 +914,32 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
 function TAsphyreCanvas.PrepareDraw(): Boolean;
 begin
- with TAsphyreDevice(FDevice).Dev9 do
+  with TAsphyreDevice(FDevice).Dev8 do
+  begin
+   // (1) Use our vertex buffer for displaying primitives.
+   Result:= Succeeded(SetStreamSource(0, VertexBuffer, SizeOf(TVertexRecord)));
+
+   // (2) Use our index buffer to indicate the vertices of our primitives.
+   if (FIndexedMode)and(Result) then
+    Result:= Succeeded(SetIndices(IndexBuffer, 0));
+
+//   // (3) Disable vertex shader.
+//   if (Result) then
+//    Result:= Succeeded(SetVertexShader(0));
+
+   // (4) Set the flexible vertex format of our vertex buffer.
+   if (Result) then
+    //Result:= Succeeded(SetFVF(VertexType));
+    Result:= Succeeded(SetVertexShader(VertexType));
+  end;
+end;
+{$ELSE}
+function TAsphyreCanvas.PrepareDraw(): Boolean;
+begin
+  with TAsphyreDevice(FDevice).Dev9 do
   begin
    // (1) Use our vertex buffer for displaying primitives.
    Result:= Succeeded(SetStreamSource(0, VertexBuffer, 0,
@@ -731,8 +958,35 @@ begin
     Result:= Succeeded(SetFVF(VertexType));
   end;
 end;
-
+{$ENDIF}
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreCanvas.BufferDraw(): Boolean;
+var
+ Primitive: TD3DPrimitiveType;
+begin
+ // (1) Determine primitive type.
+ Primitive:= D3DPT_TRIANGLELIST;
+ case FDrawingMode of
+  dmPointList    : Primitive:= D3DPT_POINTLIST;
+  dmLineList     : Primitive:= D3DPT_LINELIST;
+  dmLineStrip    : Primitive:= D3DPT_LINESTRIP;
+  dmTriangleStrip: Primitive:= D3DPT_TRIANGLESTRIP;
+  dmTriangleFan  : Primitive:= D3DPT_TRIANGLEFAN;
+ end;
+
+ // (2) Render uploaded primitives.
+ with TAsphyreDevice(FDevice).Dev8 do
+  if (FIndexedMode) then
+   begin
+    Result:= Succeeded(DrawIndexedPrimitive(Primitive, 0, FVertexCount, 0,
+     FPrimitives));
+   end else
+   begin
+    Result:= Succeeded(DrawPrimitive(Primitive, 0, FPrimitives));
+   end;
+end;
+{$ELSE}
 function TAsphyreCanvas.BufferDraw(): Boolean;
 var
  Primitive: TD3DPrimitiveType;
@@ -758,7 +1012,7 @@ begin
     Result:= Succeeded(DrawPrimitive(Primitive, 0, FPrimitives));
    end;
 end;
-
+{$ENDIF}
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.ResetCache();
 begin
@@ -793,6 +1047,29 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreCanvas.GetClipRect(): TRect;
+var
+ vp: TD3DViewport8;
+begin
+ if (FDevice = nil)or(not (FDevice is TAsphyreDevice))or
+  (TAsphyreDevice(FDevice).Dev8 = nil) then
+  begin
+   Result:= Rect(0, 0, 0, 0);
+   Exit;
+  end;
+
+ FillChar(vp, SizeOf(vp), 0);
+ TAsphyreDevice(FDevice).Dev8.GetViewport(vp);
+
+ Result.Left  := vp.X;
+ Result.Top   := vp.Y;
+ Result.Right := vp.X + vp.Width;
+ Result.Bottom:= vp.Y + vp.Height;
+
+ FClipRect:= Result;
+end;
+{$ELSE}
 function TAsphyreCanvas.GetClipRect(): TRect;
 var
  vp: TD3DViewport9;
@@ -814,8 +1091,31 @@ begin
 
  FClipRect:= Result;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.SetClipRect(const Value: TRect);
+var
+ vp: TD3DViewport8;
+begin
+ if (FDevice = nil)or(not (FDevice is TAsphyreDevice))or
+  (TAsphyreDevice(FDevice).Dev8 = nil) then Exit;
+
+ ResetCache();
+
+ vp.X:= Value.Left;
+ vp.Y:= Value.Top;
+ vp.Width := (Value.Right - Value.Left);
+ vp.Height:= (Value.Bottom - Value.Top);
+ vp.MinZ:= 0.0;
+ vp.MaxZ:= 1.0;
+
+ TAsphyreDevice(FDevice).Dev8.SetViewport(vp);
+
+ FClipRect:= Value;
+end;
+{$ELSE}
 procedure TAsphyreCanvas.SetClipRect(const Value: TRect);
 var
  vp: TD3DViewport9;
@@ -836,6 +1136,7 @@ begin
 
  FClipRect:= Value;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.RequestCache(Mode: TDrawingMode; Indexed: Boolean;
@@ -860,16 +1161,24 @@ begin
 
    // Update currently active texture.
    if (FDrawingMode = dmUnspecified)or(CachedTex <> ReqTex) then
+    {$IFDEF AsphyreUseDx8}
+    with TAsphyreDevice(FDevice).Dev8 do
+    {$ELSE}
     with TAsphyreDevice(FDevice).Dev9 do
-     begin
+    {$ENDIF}
+    begin
       if (ReqTex <> nil) then ReqTex.Activate(0) else SetTexture(0, nil);
 
      CachedTex:= ReqTex;
-    end;
+    end;// with
 
    // Update currently active effect.
    if (CachedDrawFx = fxUndefined)or(CachedDrawFx <> DrawFx) then
+   {$IFDEF AsphyreUseDx8}
+    EffectManager.HandleCode(Self, TAsphyreDevice(FDevice).Dev8, DrawFx);
+   {$ELSE}
     EffectManager.HandleCode(Self, TAsphyreDevice(FDevice).Dev9, DrawFx);
+   {$ENDIF}
 
    FIndexedMode:= Indexed;
    FDrawingMode:= Mode;
@@ -945,18 +1254,30 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.LineEx(const Src, Dest: TPoint2; Color: Cardinal);
+begin{todo: 在Dx8下需要使用另一方案画线}
+end;
+{$ELSE}
 procedure TAsphyreCanvas.LineEx(const Src, Dest: TPoint2; Color: Cardinal);
 var
  Vertices: array[0..1] of TD3DXVector2;
-begin
+begin {todo: 在Dx8下需要使用另一方案画线}
  Flush();
 
  Vertices[0]:= TD3DXVector2(Src);
  Vertices[1]:= TD3DXVector2(Dest);
  DXLine.Draw(@Vertices[0], 2, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.LineEx(x1, y1, x2, y2: Single; Color: Cardinal);
+begin
+
+end;
+{$ELSE}
 procedure TAsphyreCanvas.LineEx(x1, y1, x2, y2: Single;
  Color: Cardinal);
 var
@@ -970,8 +1291,15 @@ begin
  Vertices[1].y:= y2 - FClipRect.Top;
  DXLine.Draw(@Vertices[0], 2, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.LineEx(const Src, Dest: TPoint; Color: Cardinal);
+begin
+
+end;
+{$ELSE}
 procedure TAsphyreCanvas.LineEx(const Src, Dest: TPoint;
  Color: Cardinal);
 var
@@ -985,8 +1313,14 @@ begin
  Vertices[1].y:= Dest.Y - FClipRect.Top;
  DXLine.Draw(@Vertices[0], 2, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.WireQuadEx(const Points: TPoint4; Color: Cardinal);
+begin
+end;
+{$ELSE}
 procedure TAsphyreCanvas.WireQuadEx(const Points: TPoint4;
  Color: Cardinal);
 var
@@ -1002,8 +1336,14 @@ begin
 
  DXLine.Draw(@Vertices[0], 5, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.WireTriEx(const p1, p2, p3: TPoint2; Color: Cardinal);
+begin
+end;
+{$ELSE}
 procedure TAsphyreCanvas.WireTriEx(const p1, p2, p3: TPoint2; Color: Cardinal);
 var
  Vertices: array[0..3] of TD3DXVector2;
@@ -1017,6 +1357,7 @@ begin
 
  DXLine.Draw(@Vertices[0], 4, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.WireQuadHw(const Points: TPoint4;
@@ -1385,6 +1726,12 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.Ellipse(x, y, RadiusX, RadiusY: Single;
+  Steps: Integer; Color: Cardinal);
+begin
+end;
+{$ELSE}
 procedure TAsphyreCanvas.Ellipse(x, y, RadiusX, RadiusY: Single;
  Steps: Integer; Color: Cardinal);
 const
@@ -1409,12 +1756,20 @@ begin
 
  DXLine.Draw(@Vertices[0], Steps + 1, Color);
 end;
-
+{$ENDIF}
 //--------------------------------------------------------------------------
 procedure TAsphyreCanvas.Circle(x, y, Radius: Single; Steps: Integer;
  Color: Cardinal);
 begin
  Ellipse(x, y, Radius, Radius, Steps, Color);
+end;
+
+procedure TAsphyreCanvas.ClearCache;
+begin
+ FVertexCount:= 0;
+ FIndexCount := 0;
+ FPrimitives := 0;
+ FDrawingMode:= dmUnspecified;
 end;
 
 //---------------------------------------------------------------------------
@@ -1754,6 +2109,13 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreCanvas.FrameRibbonEx(x, y, InRadiusX, InRadiusY,
+ OutRadiusX, OutRadiusY, InitPhi, EndPhi: Single; Steps: Integer;
+ Color: Cardinal);
+begin
+end;
+{$ELSE}
 procedure TAsphyreCanvas.FrameRibbonEx(x, y, InRadiusX, InRadiusY,
  OutRadiusX, OutRadiusY, InitPhi, EndPhi: Single; Steps: Integer;
  Color: Cardinal);
@@ -1800,6 +2162,7 @@ begin
 
  DXLine.Draw(@Vertices[0], (Steps * 2) + 3, Color);
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreCanvas.UseImage(Image: TAsphyreCustomImage;

@@ -38,8 +38,13 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, d3dx9, Vectors3, AsphyreDevices, AsphyreScene,
- AsphyreEvents;
+ Windows, Vectors3, AsphyreDevices, AsphyreScene,
+ AsphyreEvents,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 {$define DebugMode}
@@ -55,17 +60,25 @@ type
 
 //---------------------------------------------------------------------------
  TShaderParameter = record
-  Name  : string;
+  Name  : AnsiString;
   Code  : Integer;
   PType : TShaderParameterType;
+  {$IFDEF AsphyreUseDx8}
+  Handle: PAnsiChar;
+  {$ELSE}
   Handle: TD3DXHandle;
+  {$ENDIF}
  end;
 
 //---------------------------------------------------------------------------
  TShaderTechnique = record
-  Name  : string;
+  Name  : AnsiString;
   Code  : Integer;
+  {$IFDEF AsphyreUseDx8}
+  Handle: PAnsiChar;
+  {$ELSE}
   Handle: TD3DXHandle;
+  {$ENDIF}
  end;
 
 //---------------------------------------------------------------------------
@@ -77,7 +90,11 @@ type
   FEffect: ID3DXEffect;
   FDevice: TAsphyreDevice;
 
+  {$IFDEF AsphyreUseDx8}
+  FNumPasses: LongWord;
+  {$ELSE}
   FNumPasses: Integer;
+  {$ENDIF}
 
   function LoadHandles(): Boolean;
   function IndexOfParameter(Code: Integer): Integer;
@@ -98,8 +115,14 @@ type
   procedure UpdateParam(Code: Integer; out DataPtr: Pointer;
    out DataSize: Integer); virtual;
   function UseTechnique(Code: Integer): Boolean;
+
+  {$IFDEF AsphyreUseDx8}
   procedure UpdateTexture(Code: Integer;
-   out ParamTex: IDirect3DTexture9); virtual;
+    out ParamTex: IDirect3DTexture8); virtual;
+  {$ELSE}
+  procedure UpdateTexture(Code: Integer;
+    out ParamTex: IDirect3DTexture9); virtual;
+  {$ENDIF}
 
   procedure UpdateAll();
   procedure BeginUpdate();
@@ -109,9 +132,13 @@ type
   property Device: TAsphyreDevice read FDevice;
   property Effect: ID3DXEffect read FEffect;
 
+  {$IFDEF AsphyreUseDx8}
+  property NumPasses: LongWord read FNumPasses;
+  {$ELSE}
   property NumPasses: Integer read FNumPasses;
+  {$ENDIF}
 
-  function LoadFromFile(const FileName: string): Boolean;
+  function LoadFromFile(const FileName: AnsiString): Boolean;
 
   procedure BeginAll();
   procedure EndAll();
@@ -198,6 +225,33 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreShaderEffect.LoadHandles(): Boolean;
+var
+ i: Integer;
+ ParamDesc: TD3DXParameterDesc;
+ TechniqueDesc: TD3DXTechniqueDesc;
+begin
+  Result := True;
+  for i := 0 to Length(Parameters) - 1 do
+  begin// 检查参数是否有效
+    if FEffect.GetParameterDesc(PAnsiChar(Parameters[i].Name), ParamDesc) <> S_OK then
+    begin
+      Result := False;
+      Exit;
+    end;// if
+  end;// for i
+
+  for i:= 0 to Length(Techniques) - 1 do
+  begin
+    if FEffect.GetTechniqueDesc(PAnsiChar(Techniques[i].Name), TechniqueDesc) <> S_OK then
+    begin
+      Result:= False;
+      Exit;
+    end;// if
+  end;// for i
+end;
+{$ELSE}
 function TAsphyreShaderEffect.LoadHandles(): Boolean;
 var
  i: Integer;
@@ -227,6 +281,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.OnDeviceLost(Sender: TObject;
@@ -243,27 +298,64 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TAsphyreShaderEffect.LoadFromFile(const FileName: string): Boolean;
+{$IFDEF AsphyreUseDx8}
+function TAsphyreShaderEffect.LoadFromFile(const FileName: AnsiString): Boolean;
 {$ifdef DebugMode}
 var
  Errors: ID3DXBuffer;
+ tmpErrorStr: AnsiString;
+ tmpP: Pointer;
 {$endif}
 begin
  if (FEffect <> nil) then FEffect:= nil;
 
  {$ifdef DebugMode}
- Result:= Succeeded(D3DXCreateEffectFromFile(FDevice.Dev9, PAnsiChar(FileName),
+ Result:= Succeeded(D3DXCreateEffectFromFileA(FDevice.Dev8, PAnsiChar(FileName),
+   FEffect, @Errors));
+
+ if (Errors <> nil) then
+ begin
+   if (Errors.GetBufferSize > 0 ) then
+   begin
+     SetLength(tmpErrorStr, Errors.GetBufferSize);
+     tmpP := Errors.GetBufferPointer();
+     Move(tmpP, tmpErrorStr[1], Errors.GetBufferSize);
+     //OutputDebugString(Errors.GetBufferPointer());
+     OutputDebugStringA(PAnsiChar( tmpErrorStr ));
+     SetLength(tmpErrorStr, 0);
+   end;// if
+ end;
+ {$else}
+ Result:= Succeeded(D3DXCreateEffectFromFileA(FDevice.Dev8, PAnsiChar(FileName),
+   FEffect, nil));
+ {$endif}
+
+ if (Result) then Result:= LoadHandles();
+end;
+{$ELSE}
+function TAsphyreShaderEffect.LoadFromFile(const FileName: AnsiString): Boolean;
+{$ifdef DebugMode}
+var
+ Errors: ID3DXBuffer;
+
+{$endif}
+begin
+ if (FEffect <> nil) then FEffect:= nil;
+
+ {$ifdef DebugMode}
+ Result:= Succeeded(D3DXCreateEffectFromFileA(FDevice.Dev9, PAnsiChar(FileName),
   nil, nil, D3DXSHADER_DEBUG, nil, FEffect, @Errors));
 
  if (Errors <> nil) then
   OutputDebugString(Errors.GetBufferPointer());
  {$else}
- Result:= Succeeded(D3DXCreateEffectFromFile(FDevice.Dev9, PAnsiChar(FileName),
+ Result:= Succeeded(D3DXCreateEffectFromFileA(FDevice.Dev9, PAnsiChar(FileName),
   nil, nil, 0, nil, FEffect, nil));
  {$endif}
 
  if (Result) then Result:= LoadHandles();
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.UpdateParam(Code: Integer; out DataPtr: Pointer;
@@ -274,11 +366,19 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreShaderEffect.UpdateTexture(Code: Integer;
+ out ParamTex: IDirect3DTexture8);
+begin
+ ParamTex:= nil;
+end;
+{$ELSE}
 procedure TAsphyreShaderEffect.UpdateTexture(Code: Integer;
  out ParamTex: IDirect3DTexture9);
 begin
  ParamTex:= nil;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 function TAsphyreShaderEffect.IndexOfParameter(Code: Integer): Integer;
@@ -326,6 +426,60 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreShaderEffect.RequestUpdateParam(Index: Integer);
+var
+ DataPtr : Pointer;
+ DataSize: Integer;
+ TempTex : IDirect3DTexture8;
+begin
+ with Parameters[Index] do
+  case PType of
+   sptWorldViewProjection:
+    FEffect.SetMatrix(PAnsiChar(Name), TD3DXMatrix(ShdrWorldViewProjection));
+
+   sptViewProjection:
+    FEffect.SetMatrix(Handle, TD3DXMatrix(ShdrViewProjection));
+
+   sptWorldInverseTranspose:
+    FEffect.SetMatrix(PAnsiChar(Name), TD3DXMatrix(ShdrWorldInverseTranspose));
+
+   sptWorldView:
+    FEffect.SetMatrix(PAnsiChar(Name), TD3DXMatrix(ShdrWorldView));
+
+   sptWorldInverse:
+    FEffect.SetMatrix(PAnsiChar(Name), TD3DXMatrix(ShdrWorldInverse));
+
+   sptWorld:
+    FEffect.SetMatrix(PAnsiChar(Name), PD3DXMatrix(WorldMtx.RawMtx)^);
+
+   sptProjection:
+    FEffect.SetMatrix(PAnsiChar(Name), PD3DXMatrix(ProjMtx.RawMtx)^);
+
+   sptCameraPosition:
+   begin// dx8下不支持
+     //FEffect.SetValue(Handle, @ShdrCameraPosition, SizeOf(TVector3));
+   end;// sptCameraPosition
+
+   sptTexture:
+    begin
+     UpdateTexture(Code, TempTex);
+     FEffect.SetTexture(PAnsiChar(Name), TempTex);
+
+     TempTex:= nil;
+    end;
+
+   sptCustom:
+    begin
+     UpdateParam(Code, DataPtr, DataSize);
+     if (DataPtr <> nil)and(DataSize > 0) then
+     begin// dx8下不支持
+       //FEffect.SetValue(Handle, DataPtr, DataSize);
+     end;
+    end;
+  end;
+end;
+{$ELSE}
 procedure TAsphyreShaderEffect.RequestUpdateParam(Index: Integer);
 var
  DataPtr : Pointer;
@@ -374,6 +528,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.UpdateAll();
@@ -391,7 +546,14 @@ end;
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.BeginAll();
 begin
- if (FEffect <> nil) then FEffect._Begin(@FNumPasses, 0);
+  if (FEffect <> nil) then
+  begin
+    {$IFDEF AsphyreUseDx8}
+    FEffect._Begin(FNumPasses, 0);
+    {$ELSE}
+    FEffect._Begin(@FNumPasses, 0);
+    {$ENDIF}
+  end;// if
 end;
 
 //---------------------------------------------------------------------------
@@ -408,14 +570,23 @@ begin
    Result:= False;
    Exit;
   end;
-
- Result:= Succeeded(FEffect.BeginPass(PassNo));
+ {$IFDEF AsphyreUseDx8}
+    // todo dx8
+ {$ELSE}
+   Result:= Succeeded(FEffect.BeginPass(PassNo));
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.EndPass();
 begin
- if (FEffect <> nil) then FEffect.EndPass();
+ if (FEffect <> nil) then
+ begin
+   {$IFDEF AsphyreUseDx8}
+   {$ELSE}
+   FEffect.EndPass();
+   {$ENDIF}
+ end;
 end;
 
 //---------------------------------------------------------------------------
@@ -433,7 +604,11 @@ end;
 //---------------------------------------------------------------------------
 procedure TAsphyreShaderEffect.EndUpdate();
 begin
+ {$IFDEF AsphyreUseDx8}
+ // todo dx8
+ {$ELSE}
  FEffect.CommitChanges();
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------

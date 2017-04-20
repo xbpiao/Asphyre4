@@ -108,7 +108,7 @@ begin
 
  Config.Width   := ClientWidth;
  Config.Height  := ClientHeight;
- Config.Windowed:= False;
+ Config.Windowed:= True;
  Config.VSync   := False;
  Config.BitDepth:= bd24bit;
 

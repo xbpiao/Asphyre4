@@ -1,0 +1,63 @@
+Executed name: BasicGui.exe
+Executed date: 2010-2-4 15:26:43
+-------------------- ENTRY -----------------------
+Begin entry [image groups]: /images.xml
+Begin entry [image groups]: ParseLink(const Root: TXMLNode);
+ + New image group "/images/base", option "normal".
+  ++ Image described as "x/arialblack".
+   -> Pattern Size: 0x0
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: /fonts/arialblack.dds
+  ++ Image described as "gui:form".
+   -> Pattern Size: 512x256
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: form.png
+  ++ Image described as "gui:controls".
+   -> Pattern Size: 512x512
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: controls.png
+  ++ Image described as "gui:canvas".
+   -> Pattern Size: 512x256
+   -> Number of patterns: 1
+   -> Size defined as 512x256
+  ++ Image described as "font:bookantiqua".
+   -> Pattern Size: 0x0
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: /../fonts/bookantiquatex.dds
+  ++ Image described as "font:warmachine".
+   -> Pattern Size: 31x22
+   -> Number of patterns: 95
+   -> Having 2 textures in total.
+   --> Using texture #0 from: /../fonts/warmachine14btex0.dds
+   --> Using texture #1 from: /../fonts/warmachine14btex1.dds
+  ++ Image described as "font:smallpaulo".
+   -> Pattern Size: 11x11
+   -> Number of patterns: 95
+   -> Having 1 textures in total.
+   --> Using texture #0 from: /../fonts/smallpaulotex.dds
+  ++ Image described as "material1.jpg".
+   -> Pattern Size: 256x256
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: material1.jpg
+  ++ Image described as "lenna.jpg".
+   -> Pattern Size: 0x0
+   -> Number of patterns: 1
+   -> Having 1 textures in total.
+   --> Using texture #0 from: lenna.jpg
+End entry [image groups]: ParseLink(const Root: TXMLNode);
+End entry [image groups]: /images.xml
+Begin entry [font groups]: /fonts.xml
+ + New font group "all_fonts", option "all".
+  ++ Font described as "bookantiqua".
+   --> with 95 of 24x23
+   --> first letter 32 and interleave of -2
+End entry [font groups]: /fonts.xml
+Loading texture from disk: E:\DControl\Asphyre4snapshot30mar2007ModifyByPiao40993470\Examples\BasicGui\form.png
+Loading texture from disk: E:\DControl\Asphyre4snapshot30mar2007ModifyByPiao40993470\Examples\BasicGui\..\fonts\bookantiquatex.dds
+Loading texture from disk: E:\DControl\Asphyre4snapshot30mar2007ModifyByPiao40993470\Examples\BasicGui\controls.png
+-------------------- EXIT ------------------------

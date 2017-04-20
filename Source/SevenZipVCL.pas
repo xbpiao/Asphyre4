@@ -1004,7 +1004,7 @@ begin
   if isUnicode then
    SearchHandle := FindFirstFilew( PWideChar( fn ), FindDataW )
   else
-    SearchHandle := FindFirstFile( PAnsiChar( Ansistring( fn ) ), FindDataA );
+    SearchHandle := FindFirstFileA( PAnsiChar( AnsiString( fn ) ), FindDataA );
 
   if SearchHandle = INVALID_HANDLE_VALUE then
    begin
@@ -2295,7 +2295,14 @@ begin
   OSVerInfo.dwOSVersionInfoSize := sizeof(OSVerInfo);
   GetVersionEx(OsVerInfo);
   if osverinfo.dwPlatformID = VER_PLATFORM_WIN32_WINDOWS then
-   isUnicode := false
+  begin
+   // 根据编译器判断当是d2007以下时不支持unicode否则支持
+   {$IF CompilerVersion <= 18.5}
+   isUnicode := false;
+   {$ELSE}
+   isUnicode := true;
+   {$IFEND}
+  end
   else
    isUnicode := true;
 end;

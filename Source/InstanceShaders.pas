@@ -38,8 +38,13 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, d3dx9, Vectors3, Matrices4, AsphyreColors, AsphyreDevices,
- AsphyreShaderFX, InstanceMeshes;
+ Vectors3, Matrices4, AsphyreColors, AsphyreDevices,
+ AsphyreShaderFX, InstanceMeshes,
+{$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 const

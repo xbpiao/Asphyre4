@@ -7,8 +7,14 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, AsphyreDevices, AsphyreScene, AsphyreBasicShaders, Vectors3,
-  Direct3D9, AsphyreSuperEllipsoid, AsphyreMinimalShader, AsphyreImages,
-  Matrices4, CookTorranceFx;
+  AsphyreSuperEllipsoid, AsphyreMinimalShader, AsphyreImages,
+  Matrices4, CookTorranceFx,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+ {$ELSE}
+ Direct3D9
+ {$ENDIF}
+  ;
 
 //---------------------------------------------------------------------------
 type
@@ -19,7 +25,8 @@ type
   private
     { Private declarations }
     GameTicks: Integer;
-
+    FMulitSampleAntialias: Boolean;
+    FIsFillWirefram: Boolean;
     procedure ConfigureDevice(Sender: TAsphyreDevice; Tag: TObject;
      var Config: TScreenConfig);
     procedure TimerEvent(Sender: TObject);
@@ -54,6 +61,9 @@ var
  Sphere: TNewtonCustomSphere;
  i: Integer;
 begin
+  FMulitSampleAntialias := False;
+  FIsFillWirefram := False;
+
  ImageGroups.ParseLink('/images.xml');
 
  if (not Devices.Initialize(ConfigureDevice, Self)) then
@@ -135,7 +145,15 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
- if (Key = VK_ESCAPE) then Close();
+ case Key of
+    VK_ESCAPE:
+      Close();
+    Ord('1'):
+      FIsFillWirefram := not FIsFillWirefram;
+    Ord('2'):
+      FMulitSampleAntialias := not FMulitSampleAntialias;
+ end;// case
+
 end;
 
 //---------------------------------------------------------------------------
@@ -148,7 +166,7 @@ begin
 
  Config.Width   := ClientWidth;
  Config.Height  := ClientHeight;
- Config.Windowed:= False;
+ Config.Windowed:= True;
  Config.VSync   := False;
  Config.BitDepth:= bd24bit;
 
@@ -176,10 +194,20 @@ end;
 //---------------------------------------------------------------------------
 procedure TMainForm.RenderPrimary(Sender: TAsphyreDevice; Tag: TObject);
 begin
- with DefDevice.Dev9 do
+  {$IFDEF AsphyreUseDx8}
+  with DefDevice.Dev8 do
+  {$ELSE}
+  with DefDevice.Dev9 do
+  {$ENDIF}
   begin
+    SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, DWORD(FMulitSampleAntialias));
+    if FIsFillWirefram then
+      SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME)
+    else
+      SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+  
    SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-   SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+   SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);   
   end;
 
  // Configure the viewing camera so it rotates around the world.
@@ -215,8 +243,12 @@ begin
     IntToStr(TotalVerticesNo) + ' vertices.', 4, 24, $FFD6B7FF);
 
    case Sender.Params.MultiSampleType of
+   {$IFDEF AsphyreUseDx8}
+    D3DMULTISAMPLE_NONE:
+   {$ELSE}
     D3DMULTISAMPLE_NONE,
     D3DMULTISAMPLE_NONMASKABLE:
+   {$ENDIF}
      TextOut('No multisampling support.', 4, 44, $FFE7E8A9);
 
     D3DMULTISAMPLE_2_SAMPLES..D3DMULTISAMPLE_16_SAMPLES:

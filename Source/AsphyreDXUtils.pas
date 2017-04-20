@@ -5,7 +5,11 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9;
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+ {$ELSE}
+ Direct3D9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 function ToD3DColorValue(Color: Cardinal): TD3DColorValue;

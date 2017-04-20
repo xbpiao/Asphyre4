@@ -8,7 +8,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, AsphyreDevices, AsphyreTorusKnot, AsphyreSuperEllipsoid,
   AsphyrePlaneMesh, AsphyreMeshes, InovoScene, Matrices3, Vectors2,
-  AsphyreMatrices;
+  AsphyreMatrices, Vectors3;
 
 //---------------------------------------------------------------------------
 type
@@ -16,6 +16,9 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
   private
     { Private declarations }
     GameTicks: Integer;
@@ -23,12 +26,17 @@ type
     MeshPlane: TAsphyrePlaneMesh;
     MeshKnot : TAsphyreTorusKnot;
     MeshSuper: TAsphyreSuperEllipsoid;
+    CubeMesh: TAsphyreMeshX;
 
     UseProj: Boolean;
 
     World: TAsphyreMatrix;
     Scene: TInovoScene;
 
+    FVOrigin: TVector3;
+    FVTarget: TVector3;
+    FIsStaickNeedRePaint: boolean;
+    FFieldOfView: single;
     procedure ConfigureDevice(Sender: TAsphyreDevice; Tag: TObject;
      var Config: TScreenConfig);
     procedure OnDeviceCreate(Sender: TObject; EventParam: Pointer;
@@ -40,6 +48,10 @@ type
 
     procedure RenderPrimary(Sender: TAsphyreDevice; Tag: TObject);
     procedure MakeScene();
+
+    procedure WMEnterSizeMove(var msg: TMessage); message WM_ENTERSIZEMOVE;
+    procedure WMExitSizeMove(var msg: TMessage); message WM_EXITSIZEMOVE;
+    
   public
     { Public declarations }
   end;
@@ -51,8 +63,14 @@ var
 //---------------------------------------------------------------------------
 implementation
 uses
- Direct3D9, Vectors3, AsphyreTimer, AsphyreSystemFonts, AsphyreEvents,
- MediaImages;
+ AsphyreTimer, AsphyreSystemFonts, AsphyreEvents,
+ MediaImages,
+ {$IFDEF AsphyreUseDx8}
+   Direct3D8
+ {$ELSE}
+   Direct3D9
+ {$ENDIF};
+ 
 {$R *.dfm}
 
 //---------------------------------------------------------------------------
@@ -76,6 +94,10 @@ begin
    Exit;
   end;
 
+  FVOrigin := Vector3(11.0, 16.0, -11.0);
+  FVTarget := Vector3(-5.0, 1.0, 5.0);
+  FIsStaickNeedRePaint := False;
+
  DefDevice.SysFonts.CreateFont('s/tahoma', 'tahoma', 9, False, fwtBold,
   fqtClearType, fctAnsi);
 
@@ -97,10 +119,15 @@ begin
 
  MeshSuper:= TAsphyreSuperEllipsoid.Create(DefDevice);
  MeshSuper.Generate(80, 5.0, 5.0);
+ //MeshSuper.Generate(80, 6.0, 6.0);
  MeshSuper.ComputeTangetBinormal();
 
  MeshPlane:= TAsphyrePlaneMesh.Create(DefDevice);
- MeshPlane.Generate(1, 1, 1.0, 1.0, 8.0, 8.0);
+ MeshPlane.Generate(10, 10, 1.0, 1.0, 8.0, 8.0);
+
+// CubeMesh := TAsphyreMeshX.Create(DefDevice);
+// if not CubeMesh.LoadFromFile('cube.mesh') then
+//   ShowMessage('加载cube.mesh失败！');
 
  // Configure the scene light.
  Scene.Light.Position := Vector3(10.0, 20.0, -30.0);
@@ -118,6 +145,7 @@ begin
  Timer.MaxFPS   := 200;
 
  UseProj:= False;
+ FFieldOfView := Pi / 4.0;
 end;
 
 //---------------------------------------------------------------------------
@@ -143,7 +171,7 @@ begin
 
  Config.Width   := ClientWidth;
  Config.Height  := ClientHeight;
- Config.Windowed:= False;
+ Config.Windowed:= True;
  Config.VSync   := False;
  Config.BitDepth:= bd24bit;
 
@@ -180,11 +208,16 @@ end;
 //---------------------------------------------------------------------------
 procedure TMainForm.TimerEvent(Sender: TObject);
 begin
+ if FIsStaickNeedRePaint then Exit;
  // Reset drawing primitive counters.
  ResetDrawInfo();
 
  // Set some relevant Direct3D states
- with DefDevice.Dev9 do
+ {$IFDEF AsphyreUseDx8}
+  with DefDevice.Dev8 do
+ {$ELSE}
+  with DefDevice.Dev9 do
+  {$ENDIF}
   begin
    SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
    SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
@@ -193,20 +226,33 @@ begin
  // Begin drawing a new 3D scene.
  Scene.ResetScene();
 
- // Build the 3D scene.
- MakeScene();
-
- // Render the scene from light's perspective that will be used for shadow
- // mapping, if necessary.
- if (not UseProj) then
-  begin
-   Scene.ShadowMap:= ImageShadow;
-   Scene.RenderShadowMap();
-  end else Scene.ShadowMap:= ImageSmiley;
+// // Build the 3D scene.
+// MakeScene();
+//
+// // Render the scene from light's perspective that will be used for shadow
+// // mapping, if necessary.
+// if (not UseProj) then
+//  begin
+//   Scene.ShadowMap:= ImageShadow;
+//   Scene.RenderShadowMap();
+//  end else Scene.ShadowMap:= ImageSmiley;
 
  DefDevice.Render(RenderPrimary, Self, 0, 1.0, 0);
 
+
  Timer.Process();
+end;
+
+procedure TMainForm.WMEnterSizeMove(var msg: TMessage);
+begin
+  FIsStaickNeedRePaint := True;
+  Timer.Enabled := False;
+end;
+
+procedure TMainForm.WMExitSizeMove(var msg: TMessage);
+begin
+  FIsStaickNeedRePaint := False;
+  Timer.Enabled := True;
 end;
 
 //---------------------------------------------------------------------------
@@ -222,10 +268,22 @@ begin
  with Scene do
   begin
    View.LoadIdentity();
-   View.LookAt(Vector3(11.0, 16.0, -11.0), Vector3(-5.0, 1.0, 5.0), AxisYVec3);
+   //View.LookAt(Vector3(11.0, 16.0, -11.0), Vector3(-5.0, 1.0, 5.0), AxisYVec3);
+   View.LookAt(FVOrigin, FVTarget, AxisYVec3);
 
    Proj.LoadIdentity();
-   Proj.PerspectiveFovY(Pi / 4.0, ClientWidth / ClientHeight, 0.5, 200.0);
+   Proj.PerspectiveFovY(FFieldOfView, ClientWidth / ClientHeight, 0.5, 200.0);
+
+ // Build the 3D scene.
+ MakeScene();
+
+ // Render the scene from light's perspective that will be used for shadow
+ // mapping, if necessary.
+ if (not UseProj) then
+  begin
+   Scene.ShadowMap:= ImageShadow;
+   Scene.RenderShadowMap();
+  end else Scene.ShadowMap:= ImageSmiley;
 
    Render(UseProj);
   end;
@@ -240,9 +298,15 @@ begin
     4, 24, $FFAED7E3);
 
   case Sender.Params.MultiSampleType of
+    {$IFDEF AsphyreUseDx8}
+    D3DMULTISAMPLE_NONE:
+    {$ELSE}
     D3DMULTISAMPLE_NONE,
     D3DMULTISAMPLE_NONMASKABLE:
+    {$ENDIF}
+    begin
      TextOut('No multisampling support.', 4, 64, $FFC1FF93);
+    end;
 
     D3DMULTISAMPLE_2_SAMPLES..D3DMULTISAMPLE_16_SAMPLES:
      TextOut(IntToStr(Integer(Sender.Params.MultiSampleType)) +
@@ -255,8 +319,81 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
  Shift: TShiftState);
 begin
- if (Key = VK_ESCAPE) then Close();
- if (Key = VK_SPACE) then UseProj:= not UseProj;
+// if (Key = VK_ESCAPE) then Close();
+// if (Key = VK_SPACE) then UseProj:= not UseProj;
+  case Key of
+    VK_ESCAPE:
+    begin
+      FVOrigin := Vector3(11.0, 16.0, -11.0);
+      FVTarget := Vector3(-5.0, 1.0, 5.0);
+    end;// VK_ESCAPE
+    VK_SPACE: UseProj:= not UseProj;
+    VK_UP:
+    begin
+      FVOrigin.y := FVOrigin.y + 0.1;
+    end;// VK_UP
+    VK_DOWN:
+    begin
+      FVOrigin.y := FVOrigin.y - 0.1;
+    end;// VK_DOWN
+    VK_LEFT:
+    begin
+      FVOrigin.x := FVOrigin.x - 0.1;
+    end;// VK_LEFT
+    VK_RIGHT:
+    begin
+      FVOrigin.x := FVOrigin.x + 0.1;
+    end;// VK_RIGHT
+    VK_PRIOR:
+    begin
+      FVOrigin.z := FVOrigin.z + 0.1;
+    end;// VK_PRIOR
+    VK_NEXT:
+    begin
+      FVOrigin.z := FVOrigin.z - 0.1;
+    end;// VK_NEXT
+    Ord('1'):
+    begin
+     {$IFDEF AsphyreUseDx8}
+      with DefDevice.Dev8 do
+     {$ELSE}
+      with DefDevice.Dev9 do
+      {$ENDIF}
+      begin
+        SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+      end;// with
+    end;// 1
+    Ord('2'):
+    begin
+     {$IFDEF AsphyreUseDx8}
+      with DefDevice.Dev8 do
+     {$ELSE}
+      with DefDevice.Dev9 do
+      {$ENDIF}
+      begin
+        SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+      end;// with
+    end;// 2
+
+  end;// case
+end;
+
+procedure TMainForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  if WheelDelta > 0 then
+    FFieldOfView := FFieldOfView + 0.1
+  else
+    FFieldOfView := FFieldOfView - 0.1;
+end;
+
+procedure TMainForm.FormPaint(Sender: TObject);
+begin
+  if FIsStaickNeedRePaint then
+  begin// 拖动时绘制
+    ResetDrawInfo();
+    DefDevice.Render(RenderPrimary, Self, 0, 1.0, 0);
+  end;// if
 end;
 
 //---------------------------------------------------------------------------
@@ -281,6 +418,12 @@ begin
 
  Scene.AddScene(MeshSuper, World.RawMtx^, 0.1, $FFFFFF, 7.0, ImageKnot,
   ImageKnotN, ScaleMtx3(Point2(8.0, 8.0)));
+
+// World.LoadIdentity();
+// World.Scale(10.0, 10.0, 10.0);
+// World.Translate(7.0, 7.0, 0.0);
+// Scene.AddScene(CubeMesh, World.RawMtx^, 0.2, $808080, 8.0, ImageFloor,
+//  ImageFloorN, IdentityMtx3);
 
  // Put our torus knot and make some animation with it. 
  Shift.x:= -GameTicks * 0.02;

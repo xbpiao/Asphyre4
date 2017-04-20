@@ -38,7 +38,12 @@ interface
 
 //--------------------------------------------------------------------------
 uses
- d3dx9, Vectors3, Matrices4, AsphyreMatrices;
+ Vectors3, Matrices4, AsphyreMatrices,
+ {$IFDEF AsphyreUseDx8}
+  D3DX8
+ {$ELSE}
+  D3DX9
+ {$ENDIF};
 
 //--------------------------------------------------------------------------
 var

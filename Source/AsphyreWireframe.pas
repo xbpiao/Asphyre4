@@ -38,8 +38,13 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, Vectors3, Matrices4, AsphyreTypes, AsphyreUtils,
- AsphyreDevices, AsphyreEvents;
+ Windows, Vectors3, Matrices4, AsphyreTypes, AsphyreUtils,
+ AsphyreDevices, AsphyreEvents,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //---------------------------------------------------------------------------
 const

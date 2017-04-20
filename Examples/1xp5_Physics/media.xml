@@ -1,0 +1,7 @@
+<unires>
+
+ <!-- reference an external resource holding image descriptions -->
+ <resource source="/images.xml" />
+ <resource source="/fonts.xml" />
+ 
+</unires>

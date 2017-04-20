@@ -38,8 +38,13 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, SysUtils, Vectors2px, AsphyreTypes,
- AsphyreTextures, MediaImages, MediaUtils;
+ Windows, SysUtils, Vectors2px, AsphyreTypes,
+ AsphyreTextures, MediaImages, MediaUtils,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8//, D3DX8
+ {$ELSE}
+ Direct3D9//, D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 type
@@ -163,6 +168,8 @@ type
   property Draft: TAsphyreDynamicTexture read FDraft;
 
   function Initialize(Desc: PImageDesc): Boolean; override;
+
+  function InitializeByDevice(Desc: PImageDesc; ADevice: TObject): Boolean;
   procedure Finalize(); override;
  end;
 
@@ -567,6 +574,24 @@ begin
   end;
 
  FDraft:= TAsphyreDynamicTexture.Create(FOwner.Device);
+ FDraft.Size     := Desc.Size;
+ FDraft.Format   := Desc.Format;
+ FDraft.MipLevels:= Desc.MipLevels;
+
+ Result:= FDraft.Initialize();
+ if (not Result) then
+  begin
+   FDraft.Free();
+   FDraft:= nil;
+  end;
+
+ FInitialized:= Result;
+end;
+
+function TAsphyreDraft.InitializeByDevice(Desc: PImageDesc;
+  ADevice: TObject): Boolean;
+begin
+ FDraft:= TAsphyreDynamicTexture.Create(ADevice);
  FDraft.Size     := Desc.Size;
  FDraft.Format   := Desc.Format;
  FDraft.MipLevels:= Desc.MipLevels;

@@ -44,7 +44,12 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, Vectors2, Vectors3, AsphyreMeshes;
+ Windows, Vectors2, Vectors3, AsphyreMeshes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //---------------------------------------------------------------------------
 type
@@ -113,6 +118,8 @@ const
   // D3DDECL_END()
   (Stream: $FF; Offset: 0; _Type: D3DDECLTYPE_UNUSED;
    Method: TD3DDeclMethod(0); Usage: TD3DDeclUsage(0); UsageIndex: 0));*)
+ {$IFDEF AsphyreUseDx8}
+ {$ELSE}
  VertexElements: array[0..VertexElementNo - 1] of TD3DVertexElement9 =
  (// Position
   (Stream: 0; Offset: 0; _Type: D3DDECLTYPE_FLOAT3;
@@ -132,17 +139,39 @@ const
   // D3DDECL_END()
   (Stream: $FF; Offset: 0; _Type: D3DDECLTYPE_UNUSED;
    Method: TD3DDeclMethod(0); Usage: TD3DDeclUsage(0); UsageIndex: 0));
-
+  {$ENDIF}
 //---------------------------------------------------------------------------
 function TAsphyreProceduralMesh.CreateBuffers(Faces, Vertices: Integer): Boolean;
 begin
  if (FDXMesh <> nil) then FDXMesh:= nil;
-
+ {$IFDEF AsphyreUseDx8}
+ Result:= Succeeded(D3DXCreateMesh(Faces, Vertices, D3DXMESH_MANAGED,
+  nil, Device.Dev8, FDXMesh));
+ {$ELSE}
  Result:= Succeeded(D3DXCreateMesh(Faces, Vertices, D3DXMESH_MANAGED,
   @VertexElements[0], Device.Dev9, FDXMesh));
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreProceduralMesh.LockBuffers(): Boolean;
+var tmpP: PByte;
+begin
+ if (FDXMesh = nil) then
+  begin
+   Result:= False;
+   Exit;
+  end;
+
+ Result:= Succeeded(FDXMesh.LockVertexBuffer(0, tmpP));
+ if (not Result) then Exit;
+
+ Result:= Succeeded(FDXMesh.LockIndexBuffer(0, tmpP));
+ if (not Result) then Exit;
+ CurVertex := Pointer(tmpP);
+end;
+{$ELSE}
 function TAsphyreProceduralMesh.LockBuffers(): Boolean;
 begin
  if (FDXMesh = nil) then
@@ -157,6 +186,7 @@ begin
  Result:= Succeeded(FDXMesh.LockIndexBuffer(0, Pointer(CurIndex)));
  if (not Result) then Exit;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 procedure TAsphyreProceduralMesh.UnlockBuffers();

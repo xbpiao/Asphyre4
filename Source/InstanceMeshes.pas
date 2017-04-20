@@ -5,7 +5,12 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, d3dx9, Vectors2, Vectors3, AsphyreUtils, AsphyreMeshes;
+ Windows, Vectors2, Vectors3, AsphyreUtils, AsphyreMeshes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //---------------------------------------------------------------------------
 // Enable the following option to enable the generation and usage of

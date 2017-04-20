@@ -1,0 +1,140 @@
+[TAdDraw] [Info] AdDraw was created: 0:22:53
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 300MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:23:13
+[Bounce.exe] [Starting] Starting Application
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 300MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:24:21
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:24:35
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:24:41
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+
+[TAdDraw] [Info] AdDraw was created: 0:25:35
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:28:01
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:29:04
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 0:29:12
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 303MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 1:31:10
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.
+
+[TAdDraw] [Info] AdDraw was created: 1:43:08
+[TAdDraw] [Info] Try to initialize Andorra Direct3D 9 Plugin.
+[TAdDraw] [Info] Try to initialize the device.
+[TAdDraw] [Info] Device supports 8 lights
+[TAdDraw] [Info] 302MB Texture Memory on this device.
+[TAdDraw] [Info] Initialization complete.
+[TAdDraw] [Info] Changed point of view to a 2D Szene.
+[TAdDraw] [Info] Finalization Complete.

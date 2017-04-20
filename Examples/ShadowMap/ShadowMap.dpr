@@ -1,5 +1,7 @@
 program ShadowMap;
 
+{%File 'InovoFlux.fx'}
+
 uses
   Forms,
   MainFm in 'MainFm.pas' {MainForm},

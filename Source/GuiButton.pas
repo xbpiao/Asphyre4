@@ -78,7 +78,7 @@ type
 implementation
 
 uses
- SysUtils;
+ SysUtils, AsphyreSystemFonts;
 
 //---------------------------------------------------------------------------
 const
@@ -165,18 +165,36 @@ end;
 procedure TGuiButton.DrawText(const DrawPos: TPoint2px);
 var
  Font: TAsphyreNativeFont;
+ SysFont: TAsphyreSystemFont;
  Shift: TPoint2px;
+ t: TRect;
 begin
- Font:= GuiFonts.Font[FCaptFont];
- if (Font = nil) then Exit;
+  Font:= GuiFonts.Font[FCaptFont];
+  if (Font = nil) then
+  begin
+    SysFont := GuiDevice.SysFonts.Font[FCaptFont];
 
- Font.Options^:= FCaptOpt;
 
- Shift:= ZeroPoint2px;
- if (MouseDown) then Shift:= Point2px(1, 1);
+    Shift:= ZeroPoint2px;
+    if (MouseDown) then Shift:= Point2px(1, 1);
 
- Font.TextRect(FCaption, MoveRect(FCaptRect, DrawPos + Shift),
-  FCaptHAlign, FCaptVAlign, FCaptCol.UseColor(GetSkinDrawType()));
+//    SysFont.TextOut(FCaption, MoveRect(FCaptRect, DrawPos + Shift),
+//      [fftTop, fftLeft, fftSingleLine], $ffff0000);
+    t := MoveRect(FCaptRect, DrawPos + Shift);
+    SysFont.TextOut(FCaption, t.Left, t.Top, $ffff0000);
+    //SysFont.TextOut('สตั้', 10, 10, $ffff0000);
+//    SysFont.TextRect(FCaption, MoveRect(FCaptRect, DrawPos + Shift),
+//    FCaptHAlign, FCaptVAlign, FCaptCol.UseColor(GetSkinDrawType()));
+
+  end
+  else
+  begin
+    Font.Options^:= FCaptOpt;
+    Shift:= ZeroPoint2px;
+    if (MouseDown) then Shift:= Point2px(1, 1);
+    Font.TextRect(FCaption, MoveRect(FCaptRect, DrawPos + Shift),
+    FCaptHAlign, FCaptVAlign, FCaptCol.UseColor(GetSkinDrawType()));
+  end;
 end;
 
 //---------------------------------------------------------------------------

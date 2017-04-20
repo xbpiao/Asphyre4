@@ -5,8 +5,14 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, d3dx9, Vectors3, Matrices4, AsphyreColors, AsphyreDevices,
- AsphyreShaderFX, AsphyreMeshes;
+ Vectors3, Matrices4, AsphyreColors, AsphyreDevices,
+ AsphyreShaderFX, AsphyreMeshes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, d3dx8
+ {$ELSE}
+ Direct3D9, d3dx9
+ {$ENDIF}
+ ;
 
 //---------------------------------------------------------------------------
 type

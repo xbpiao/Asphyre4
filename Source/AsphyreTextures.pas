@@ -38,9 +38,14 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, Types, Classes, SysUtils, Vectors2px,
+ Windows, Types, Classes, SysUtils, Vectors2px,
  AsphyreAsserts, MediaUtils, AsphyreArchives, Vectors2, AsphyreTypes 
- {$IFDEF DebugMode}, AsphyreDebug{$ENDIF};
+ {$IFDEF DebugMode}, AsphyreDebug{$ENDIF},
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //---------------------------------------------------------------------------
 type
@@ -54,7 +59,11 @@ type
   FMipLevels: Cardinal;
   FSize     : TPoint;
  protected
+  {$IFDEF AsphyreUseDx8}
+  FTex9       : IDirect3DTexture8;
+  {$ELSE}
   FTex9       : IDirect3DTexture9;
+  {$ENDIF}
   FTextureType: TAsphyreTextureType;
   FInitialized: Boolean;
 
@@ -64,7 +73,11 @@ type
   property Device: TObject read FDevice;
 
   // Interface to Direct3D texture.
+  {$IFDEF AsphyreUseDx8}
+  property Tex9: IDirect3DTexture8 read FTex9;
+  {$ELSE}
   property Tex9: IDirect3DTexture9 read FTex9;
+  {$ENDIF}
 
   // Indicates whether the texture has been initialized successfully.
   property Initialized: Boolean read FInitialized;
@@ -136,10 +149,15 @@ type
  TAsphyreRenderTarget = class(TAsphyreCustomTexture)
  private
   FUseDepthStencil: Boolean;
-
+  {$IFDEF AsphyreUseDx8}
+  DepthStencil : IDirect3DSurface8;
+  SavedSurface : IDirect3DSurface8;
+  SavedDepthBuf: IDirect3DSurface8;
+  {$ELSE}
   DepthStencil : IDirect3DSurface9;
   SavedSurface : IDirect3DSurface9;
   SavedDepthBuf: IDirect3DSurface9;
+  {$ENDIF}
  protected
   function RefreshInfo(): Boolean;
  public
@@ -171,7 +189,7 @@ type
   function InitializeEx(const Source: string; ColorKey: Cardinal): Boolean;
   procedure Finalize(); override;
 
-  function Lock(out Bits: Pointer; out Pitch: Integer): Boolean;
+  function Lock(out Bits: Pointer; out Pitch: Integer; Flag: Cardinal = D3DLOCK_DISCARD): Boolean;
   procedure Unlock();
 
   constructor Create(ADevice: TObject); override;
@@ -248,7 +266,11 @@ end;
 procedure TAsphyreCustomTexture.Activate(Stage: Cardinal);
 begin
  if (FDevice <> nil)and(FTex9 <> nil) then
+ {$IFDEF AsphyreUseDx8}
+ TAsphyreDevice(Device).Dev8.SetTexture(Stage, FTex9);
+ {$ELSE}
   TAsphyreDevice(Device).Dev9.SetTexture(Stage, FTex9);
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -296,9 +318,17 @@ var
 begin
  Assert(not FInitialized, msgAlreadyInitialized);
  FindUsagePool(Usage, Pool);
-
+ {$IFDEF AsphyreUseDx8}
+ Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev8,
+  FOrigSize.X, FOrigSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+// Result:= Succeeded(TAsphyreDevice(Device).Dev8.CreateTexture(
+//   FOrigSize.X, FOrigSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ELSE}
  Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev9,
   FOrigSize.X, FOrigSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+// Result:= Succeeded(TAsphyreDevice(Device).Dev9.CreateTexture(
+//   FOrigSize.X, FOrigSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ENDIF}
  if (not Result)or(not RefreshInfo()) then
   begin
    FTex9 := nil;
@@ -315,7 +345,8 @@ var
  Usage: Cardinal;
  Pool : TD3DPool;
  Info : TD3DXImageInfo;
- TempPath, TempFile: string;
+ TempPath, TempFile: AnsiString;
+ tmpFile: AnsiString;
  MemStream: TMemoryStream;
 begin
  FindUsagePool(Usage, Pool);
@@ -330,29 +361,37 @@ begin
      {$ENDIF}
 
      // find some temporary path to save file to
-     TempPath:= GetTempPath();
+     TempPath:= AnsiString(GetTempPath());
 
      // extract the item from archive to temporary path
      Result:= ArchiveManager.ExtractToDisk(Source, TempPath);
      if (Result) then
       begin
        // find the name of the extracted file
-       TempFile:= MakeValidPath(TempPath) +
-        MakeValidFileName(ExtractArchiveKey(Source));
+       TempFile:= AnsiString(MakeValidPath(TempPath) +
+        MakeValidFileName(ExtractArchiveKey(Source)));
 
        {$IFDEF DebugMode}
        DebugLog(' ++ Loading texture from: ' + TempFile);
        {$ENDIF}
 
        // load the extracted file
-       Result:= Succeeded(D3DXCreateTextureFromFileEx(TAsphyreDevice(Device).Dev9,
-        PChar(TempFile),
+       {$IFDEF AsphyreUseDx8}
+       Result:= Succeeded(D3DXCreateTextureFromFileExA(TAsphyreDevice(Device).Dev8,
+        PAnsiChar(TempFile),
         D3DX_DEFAULT {width}, D3DX_DEFAULT {height}, FMipLevels, Usage, FFormat,
         Pool, D3DX_DEFAULT {filter}, D3DX_DEFAULT {mip filter}, ColorKey, @Info,
         nil, FTex9));
 
+       {$ELSE}
+       Result:= Succeeded(D3DXCreateTextureFromFileExA(TAsphyreDevice(Device).Dev9,
+        PAnsiChar(TempFile),
+        D3DX_DEFAULT {width}, D3DX_DEFAULT {height}, FMipLevels, Usage, FFormat,
+        Pool, D3DX_DEFAULT {filter}, D3DX_DEFAULT {mip filter}, ColorKey, @Info,
+        nil, FTex9));
+       {$ENDIF}
        // remove the extracted file to avoid trash
-       DeleteFile(TempFile);
+       DeleteFile(String(TempFile));
       end;
     end else
     begin // can load the bitmap directly from memory
@@ -372,11 +411,19 @@ begin
        DebugLog(' +++ Loading texture from memory.');
        {$ENDIF}
 
+       {$IFDEF AsphyreUseDx8}
+       Result:= Succeeded(D3DXCreateTextureFromFileInMemoryEx(TAsphyreDevice(Device).Dev8,
+        MemStream.Memory, MemStream.Size, D3DX_DEFAULT {width},
+        D3DX_DEFAULT {height}, FMipLevels, Usage, FFormat, Pool,
+        D3DX_DEFAULT {filter}, D3DX_DEFAULT {mip filter}, ColorKey, @Info, nil,
+        FTex9));
+       {$ELSE}
        Result:= Succeeded(D3DXCreateTextureFromFileInMemoryEx(TAsphyreDevice(Device).Dev9,
         MemStream.Memory, MemStream.Size, D3DX_DEFAULT {width},
         D3DX_DEFAULT {height}, FMipLevels, Usage, FFormat, Pool,
         D3DX_DEFAULT {filter}, D3DX_DEFAULT {mip filter}, ColorKey, @Info, nil,
         FTex9));
+       {$ENDIF}
       end;
 
      // release the memory stream
@@ -387,11 +434,19 @@ begin
    {$IFDEF DebugMode}
    DebugLog('Loading texture from disk: ' + {Source}ExtractArchiveName(Source));
    {$ENDIF}
-
-   Result:= Succeeded(D3DXCreateTextureFromFileEx(TAsphyreDevice(Device).Dev9,
-    PChar(ExtractArchiveName(Source)), D3DX_DEFAULT {width}, D3DX_DEFAULT {height},
+   // 这个中间变量保证d2010下调用API正确
+   tmpFile := AnsiString(ExtractArchiveName(Source));
+   {$IFDEF AsphyreUseDx8}
+   Result:= Succeeded(D3DXCreateTextureFromFileExA(TAsphyreDevice(Device).Dev8,
+    PAnsiChar(tmpFile), D3DX_DEFAULT {width}, D3DX_DEFAULT {height},
     FMipLevels, Usage, FFormat, Pool, D3DX_DEFAULT {filter},
     D3DX_DEFAULT {mip filter}, ColorKey, @Info, nil, FTex9));
+   {$ELSE}
+   Result:= Succeeded(D3DXCreateTextureFromFileExA(TAsphyreDevice(Device).Dev9,
+    PAnsiChar(tmpFile), D3DX_DEFAULT {width}, D3DX_DEFAULT {height},
+    FMipLevels, Usage, FFormat, Pool, D3DX_DEFAULT {filter},
+    D3DX_DEFAULT {mip filter}, ColorKey, @Info, nil, FTex9));
+   {$ENDIF}
   end;
 
  if (not Result)or(not RefreshInfo()) then
@@ -470,9 +525,34 @@ var
 begin
  Assert(not FInitialized, msgAlreadyInitialized);
  FindUsagePool(Usage, Pool);
-
+ {$IFDEF AsphyreUseDx8}
+ Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev8,
+  FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+//  {$IFDEF UseOutputDebugString}
+//    if not Result then
+//    begin// 创建失败时输出相关信息
+//      OutputDebugString(PAnsiChar('TAsphyreRenderTarget.Initialize Error [' +
+//        SysErrorMessage(GetLastError) + '] x=' + IntToStr(FSize.X) +
+//        ' y=' + IntToStr(FSize.Y) + ' FMipLevels=' + IntToStr(FMipLevels) +
+//        ' Usage=' + IntToStr(Usage) + ' FFormat=' + IntToStr(Ord(FFormat)) +
+//        ' Pool=' + IntToStr(Ord(Pool))));
+//     Result:= Succeeded(TAsphyreDevice(Device).Dev8.CreateTexture(
+//       FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+//      OutputDebugString(PAnsiChar('TAsphyreRenderTarget.Initialize ReTry Result=' + BoolToStr(Result) ));
+//    end
+//    else
+//    begin
+//      OutputDebugString(PAnsiChar('TAsphyreRenderTarget.Initialize OK [' +
+//        SysErrorMessage(GetLastError) + '] x=' + IntToStr(FSize.X) +
+//        ' y=' + IntToStr(FSize.Y) + ' FMipLevels=' + IntToStr(FMipLevels) +
+//        ' Usage=' + IntToStr(Usage) + ' FFormat=' + IntToStr(Ord(FFormat)) +
+//        ' Pool=' + IntToStr(Ord(Pool))));
+//    end;// if
+//  {$ENDIF}
+ {$ELSE}
  Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev9,
   FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ENDIF}
  if (not Result)or(not RefreshInfo()) then
   begin
    FTex9 := nil;
@@ -482,9 +562,14 @@ begin
  if (Result)and(FUseDepthStencil) then
   with TAsphyreDevice(Device) do
    begin
+    {$IFDEF AsphyreUseDx8}
+    Result:= Succeeded(Dev8.CreateDepthStencilSurface(FSize.X, FSize.Y,
+     Params.AutoDepthStencilFormat, D3DMULTISAMPLE_NONE, DepthStencil));
+    {$ELSE}
     Result:= Succeeded(Dev9.CreateDepthStencilSurface(FSize.X, FSize.Y,
      Params.AutoDepthStencilFormat, D3DMULTISAMPLE_NONE, 0, True, DepthStencil,
      nil));
+    {$ENDIF}
 
     if (not Result) then FTex9:= nil;
    end;
@@ -510,6 +595,90 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreRenderTarget.BeginDraw(): Boolean;
+var
+ MySurface: IDirect3DSurface8;
+begin
+ Assert(FInitialized, msgNotInitialized);
+
+ // (1) Retreive my own surface for setting it as a render target.
+ Result:= Succeeded(FTex9.GetSurfaceLevel(0, MySurface));
+ if (not Result) then
+  begin
+   {$IFDEF DebugMode}
+   DebugLog('!! Failed retreiving my render target surface.');
+   {$ENDIF}
+   Exit;
+  end;
+
+ with TAsphyreDevice(Device).Dev8 do
+  begin
+   // (2) Retreive the render surface that was previously active.
+   Result:= Succeeded(GetRenderTarget(SavedSurface));
+   if (not Result) then
+    begin
+     {$IFDEF DebugMode}
+     DebugLog('!! Failed retreiving currently active rendering surface.');
+     {$ENDIF}
+     Exit;
+    end;
+
+   // (3) Retreive the depth/stencil that was previously active.
+   if (FUseDepthStencil) then
+    begin
+     Result:= Succeeded(GetDepthStencilSurface(SavedDepthBuf));
+     if (not Result) then
+      begin
+       {$IFDEF DebugMode}
+       DebugLog('!! Failed retreiving currently active depth/stencil buffer.');
+       {$ENDIF}
+       Exit;
+      end;
+    end;
+
+    if (MySurface <> nil) and (DepthStencil <> nil) then
+    begin
+      Result:= Succeeded(SetRenderTarget(MySurface, DepthStencil));
+    end
+    else
+    begin
+   // (4) Set my surface to be the new render target.
+   Result:= Succeeded(SetRenderTarget(MySurface, nil));
+   if (not Result) then
+    begin
+     {$IFDEF DebugMode}
+     DebugLog('!! Failed setting my surface as a new rendering target.');
+     {$ENDIF}
+     Exit;
+    end;
+
+       // (5) Set my own buffer as a new depth/stencil buffer.
+       if (FUseDepthStencil) then
+        begin{ 在dx8中这部分无法处理因为没有SetDepthStencilSurface }
+         Result:= Succeeded(SetRenderTarget(nil, DepthStencil));
+         if (not Result) then
+          begin
+           {$IFDEF DebugMode}
+           DebugLog('!! Failed setting my buffer as a new depth/stencil buffer.');
+           {$ENDIF}
+           Exit;
+          end;
+    //     Result:= Succeeded(SetDepthStencilSurface(DepthStencil));
+    //     if (not Result) then
+    //      begin
+    //       {$IFDEF DebugMode}
+    //       DebugLog('!! Failed setting my buffer as a new depth/stencil buffer.');
+    //       {$ENDIF}
+    //       Exit;
+    //      end;
+        end;
+    end;// if
+   // (6) Release the surface instance previously retreived.
+   MySurface:= nil;
+  end;
+end;
+{$ELSE}
 function TAsphyreRenderTarget.BeginDraw(): Boolean;
 var
  MySurface: IDirect3DSurface9;
@@ -578,13 +747,45 @@ begin
    MySurface:= nil;
   end;
 end;
+{$ENDIF}
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TAsphyreRenderTarget.EndDraw();
+begin
+ with TAsphyreDevice(Device).Dev8 do
+  begin
+   if (SavedDepthBuf <> nil) and (SavedSurface <> nil) then
+   begin
+     SetRenderTarget(SavedSurface, SavedDepthBuf);
+     SavedDepthBuf:= nil;
+     SavedSurface:= nil;
+   end
+   else
+   begin
+   // Restore previously used depth/stencil buffer.
+   if (SavedDepthBuf <> nil) then
+    begin{ 在dx8中这部分无法处理因为没有SetDepthStencilSurface }
+     SetRenderTarget(nil, SavedDepthBuf); // 先这样试试
+     //SetDepthStencilSurface(SavedDepthBuf);
+     SavedDepthBuf:= nil;
+    end;
+
+     // Restore previously used surface as a render target.
+     if (SavedSurface <> nil) then
+      begin
+       SetRenderTarget(SavedSurface, nil);
+       SavedSurface:= nil;
+      end;
+    end;// if
+  end;
+end;
+{$ELSE}
 procedure TAsphyreRenderTarget.EndDraw();
 begin
  with TAsphyreDevice(Device).Dev9 do
   begin
-   // Restore previously used depth/stencil buffer. 
+   // Restore previously used depth/stencil buffer.
    if (SavedDepthBuf <> nil) then
     begin
      SetDepthStencilSurface(SavedDepthBuf);
@@ -599,7 +800,7 @@ begin
     end;
   end;
 end;
-
+{$ENDIF}
 //---------------------------------------------------------------------------
 constructor TAsphyreDynamicTexture.Create(ADevice: TObject);
 begin
@@ -635,9 +836,35 @@ var
 begin
  Assert(not FInitialized, msgAlreadyInitialized);
  FindUsagePool(Usage, Pool);
+ {$IFDEF AsphyreUseDx8}
+ Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev8,
+  FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
 
+//  {$IFDEF UseOutputDebugString}
+//    if not Result then
+//    begin// 创建失败时输出相关信息
+//      OutputDebugString(PAnsiChar('TAsphyreDynamicTexture.Initialize Error [' +
+//        SysErrorMessage(GetLastError) + '] x=' + IntToStr(FSize.X) +
+//        ' y=' + IntToStr(FSize.Y) + ' FMipLevels=' + IntToStr(FMipLevels) +
+//        ' Usage=' + IntToStr(Usage) + ' FFormat=' + IntToStr(Ord(FFormat)) +
+//        ' Pool=' + IntToStr(Ord(Pool))));
+//     Result:= Succeeded(TAsphyreDevice(Device).Dev8.CreateTexture(
+//       FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+//      OutputDebugString(PAnsiChar('TAsphyreDynamicTexture.Initialize ReTry Result=' + BoolToStr(Result) ));
+//    end
+//    else
+//    begin
+//      OutputDebugString(PAnsiChar('TAsphyreDynamicTexture.Initialize OK [' +
+//        SysErrorMessage(GetLastError) + '] x=' + IntToStr(FSize.X) +
+//        ' y=' + IntToStr(FSize.Y) + ' FMipLevels=' + IntToStr(FMipLevels) +
+//        ' Usage=' + IntToStr(Usage) + ' FFormat=' + IntToStr(Ord(FFormat)) +
+//        ' Pool=' + IntToStr(Ord(Pool))));
+//    end;// if
+//  {$ENDIF}
+ {$ELSE}
  Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev9,
   FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ENDIF}
  if (not Result)or(not RefreshInfo()) then
   begin
    FTex9 := nil;
@@ -656,9 +883,13 @@ var
 begin
  Assert(not FInitialized, msgAlreadyInitialized);
  FindUsagePool(Usage, Pool);
-
+ {$IFDEF AsphyreUseDx8}
+ Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev8,
+  FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ELSE}
  Result:= Succeeded(D3DXCreateTexture(TAsphyreDevice(Device).Dev9,
   FSize.X, FSize.Y, FMipLevels, Usage, FFormat, Pool, FTex9));
+ {$ENDIF}
  if (not Result)or(not RefreshInfo()) then
   begin
    FTex9 := nil;
@@ -683,13 +914,13 @@ end;
 
 //---------------------------------------------------------------------------
 function TAsphyreDynamicTexture.Lock(out Bits: Pointer;
- out Pitch: Integer): Boolean;
+ out Pitch: Integer; Flag: Cardinal = D3DLOCK_DISCARD): Boolean;
 var
  LockedRect: TD3DLockedRect;
 begin
  Assert(FTex9 <> nil);
 
- Result:= Succeeded(FTex9.LockRect(0, LockedRect, nil, D3DLOCK_DISCARD));
+ Result:= Succeeded(FTex9.LockRect(0, LockedRect, nil, Flag));
 
  Bits := LockedRect.pBits;
  Pitch:= LockedRect.Pitch;

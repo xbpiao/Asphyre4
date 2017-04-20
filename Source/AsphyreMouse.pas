@@ -272,7 +272,9 @@ begin
    FInputDevice.Unacquire();
    FInputDevice:= nil;
   end;
-
+ FDeltaX := 0;
+ FDeltaY := 0;
+ FDeltaWheel := 0;
  FInitialized:= False;
 end;
 
@@ -302,7 +304,7 @@ begin
 
  repeat
   EvCount:= 1;
-
+  //FInputDevice.GetDeviceState(SizeOf(TDIDeviceObjectData), @ObjData);
   // (2) Retreive Mouse Data.
   Res:= FInputDevice.GetDeviceData(SizeOf(TDIDeviceObjectData), @ObjData,
    EvCount, 0);

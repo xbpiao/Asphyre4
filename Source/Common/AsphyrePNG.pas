@@ -65,7 +65,7 @@ begin
   begin
    Image.AssignTo(Dest);
 
-   if (Image.Header.ColorType = COLOR_RGBALPHA)or(Image.Header.ColorType = COLOR_GRAYSCALEALPHA) then
+    if (Image.Header.ColorType = COLOR_RGBALPHA)or(Image.Header.ColorType = COLOR_GRAYSCALEALPHA) then
     begin
      Dest.PixelFormat:= pf32bit;
 
@@ -80,6 +80,23 @@ begin
          Inc(PxAlpha);
         end;
       end;
+    end
+    else
+    begin
+      if Image.Header.ColorType = COLOR_RGB then
+      begin// 增加处理对24位色的问题
+        Dest.PixelFormat:= pf32bit;
+         for ScanIndex:= 0 to Dest.Height - 1 do
+          begin
+           PxScan := Dest.Scanline[ScanIndex];
+           for i:= 0 to Dest.Width - 1 do
+            begin
+             PxScan^:= (PxScan^ and $FFFFFF) or ($FF000000);
+             Inc(PxScan);
+            end;
+          end;
+
+      end;// if
     end;
   end;
 

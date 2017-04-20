@@ -38,7 +38,12 @@ interface
 
 //--------------------------------------------------------------------------
 uses
- Direct3D9, Vectors3, AsphyreAsserts, TrueColors;
+ Vectors3, AsphyreAsserts, TrueColors,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+ {$ELSE}
+ Direct3D9
+ {$ENDIF}  ;
 
 //--------------------------------------------------------------------------
 type

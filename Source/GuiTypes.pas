@@ -75,7 +75,7 @@ type
 //---------------------------------------------------------------------------
  TGuiDataType = (gdtUnknown, gdtInteger, gdtCardinal, gdtReal, gdtString,
   gdtPoint, gdtRect, gdtColor, gdtColor2, gdtSkin, gdtHAlign, gdtVAlign,
-  gdtFontOpt, gdtFontColor, gdtBoolean);
+  gdtFontOpt, gdtFontColor, gdtBoolean, gdtWideString);
 
 //---------------------------------------------------------------------------
 var

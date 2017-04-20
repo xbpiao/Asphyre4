@@ -27,59 +27,59 @@ uses
 type
  PXMLNodeField = ^TXMLNodeField;
  TXMLNodeField = record
-  Name : string;
-  Value: string;
+  Name : AnsiString;
+  Value: AnsiString;
  end;
 
 //---------------------------------------------------------------------------
  TXMLNode = class
  private
-  FName: string;
+  FName: AnsiString;
   Nodes: array of TXMLNode;
   Fields: array of TXMLNodeField;
 
   function GetChildCount(): Integer;
   function GetChild(Num: Integer): TXMLNode;
-  function GetChildNode(const Name: string): TXMLNode;
+  function GetChildNode(const Name: AnsiString): TXMLNode;
   function GetFieldCount(): Integer;
   function GetField(Num: Integer): PXMLNodeField;
-  function GetFieldValue(const Name: string): Variant;
-  procedure SetFieldValue(const Name: string; const Value: Variant);
-  function SubCode(Spacing: Integer): string;
+  function GetFieldValue(const Name: AnsiString): Variant;
+  procedure SetFieldValue(const Name: AnsiString; const Value: Variant);
+  function SubCode(Spacing: Integer): AnsiString;
  public
-  property Name: string read FName;
+  property Name: AnsiString read FName;
 
   property ChildCount: Integer read GetChildCount;
   property Child[Num: Integer]: TXMLNode read GetChild;
-  property ChildNode[const Name: string]: TXMLNode read GetChildNode;
+  property ChildNode[const Name: AnsiString]: TXMLNode read GetChildNode;
 
   property FieldCount: Integer read GetFieldCount;
   property Field[Num: Integer]: PXMLNodeField read GetField;
-  property FieldValue[const Name: string]: Variant read GetFieldValue write SetFieldValue;
+  property FieldValue[const Name: AnsiString]: Variant read GetFieldValue write SetFieldValue;
 
-  function AddChild(const Name: string): TXMLNode;
-  function FindChildByName(const Name: string): Integer;
+  function AddChild(const Name: AnsiString): TXMLNode;
+  function FindChildByName(const Name: AnsiString): Integer;
 
-  function AddField(const Name: string; const Value: Variant): PXMLNodeField;
-  function FindFieldByName(const Name: string): Integer;
+  function AddField(const Name: AnsiString; const Value: Variant): PXMLNodeField;
+  function FindFieldByName(const Name: AnsiString): Integer;
 
-  function GetCode(): string;
-  procedure SaveToFile(const FileName: string);
-  function SaveToStream(const Key: string; OutStream: TStream): Boolean;
+  function GetCode(): AnsiString;
+  procedure SaveToFile(const FileName: AnsiString);
+  function SaveToStream(const Key: AnsiString; OutStream: TStream): Boolean;
 
-  constructor Create(const AName: string);
+  constructor Create(const AName: AnsiString);
   destructor Destroy(); override;
  end;
 
 //---------------------------------------------------------------------------
-function LoadXMLFromFile(const FileName: string): TXMLNode;
+function LoadXMLFromFile(const FileName: AnsiString): TXMLNode;
 function LoadXMLFromStream(InStream: TStream): TXMLNode;
 
 //---------------------------------------------------------------------------
 implementation
 
 //---------------------------------------------------------------------------
-function Spaces(Num: Integer): string;
+function Spaces(Num: Integer): AnsiString;
 var
  i: Integer;
 begin
@@ -89,7 +89,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-constructor TXMLNode.Create(const AName: string);
+constructor TXMLNode.Create(const AName: AnsiString);
 begin
  inherited Create();
  FName:= LowerCase(AName);
@@ -125,7 +125,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.FindChildByName(const Name: string): Integer;
+function TXMLNode.FindChildByName(const Name: AnsiString): Integer;
 var
  i: Integer;
 begin
@@ -139,7 +139,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.GetChildNode(const Name: string): TXMLNode;
+function TXMLNode.GetChildNode(const Name: AnsiString): TXMLNode;
 var
  Index: Integer;
 begin
@@ -161,7 +161,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.FindFieldByName(const Name: string): Integer;
+function TXMLNode.FindFieldByName(const Name: AnsiString): Integer;
 var
  i: Integer;
 begin
@@ -175,7 +175,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.GetFieldValue(const Name: string): Variant;
+function TXMLNode.GetFieldValue(const Name: AnsiString): Variant;
 var
  Index: Integer;
 begin
@@ -184,7 +184,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-procedure TXMLNode.SetFieldValue(const Name: string; const Value: Variant);
+procedure TXMLNode.SetFieldValue(const Name: AnsiString; const Value: Variant);
 var
  Index: Integer;
 begin
@@ -193,7 +193,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.AddChild(const Name: string): TXMLNode;
+function TXMLNode.AddChild(const Name: AnsiString): TXMLNode;
 var
  Index: Integer;
 begin
@@ -205,7 +205,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.AddField(const Name: string;
+function TXMLNode.AddField(const Name: AnsiString;
  const Value: Variant): PXMLNodeField;
 var
  Index: Integer;
@@ -219,9 +219,9 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.SubCode(Spacing: Integer): string;
+function TXMLNode.SubCode(Spacing: Integer): AnsiString;
 var
- st: string;
+ st: AnsiString;
  i: Integer;
 begin
  st:= Spaces(Spacing) + '<' + FName;
@@ -246,13 +246,13 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.GetCode(): string;
+function TXMLNode.GetCode(): AnsiString;
 begin
  Result:= SubCode(0);
 end;
 
 //---------------------------------------------------------------------------
-procedure TXMLNode.SaveToFile(const FileName: string);
+procedure TXMLNode.SaveToFile(const FileName: AnsiString);
 var
  Strings: TStrings;
 begin
@@ -267,7 +267,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function TXMLNode.SaveToStream(const Key: string; OutStream: TStream): Boolean;
+function TXMLNode.SaveToStream(const Key: AnsiString; OutStream: TStream): Boolean;
 var
  Strings: TStrings;
 begin
@@ -370,7 +370,7 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-function LoadXMLFromFile(const FileName: string): TXMLNode;
+function LoadXMLFromFile(const FileName: AnsiString): TXMLNode;
 var
  Parser: TXMLParser;
 begin
@@ -417,7 +417,7 @@ begin
   try
    Strings.LoadFromStream(InStream);
 
-   Parser.LoadFromBuffer(PChar(Strings.Text));
+   Parser.LoadFromBuffer(PAnsiChar(Strings.Text));
 
    Parser.Normalize:= False;
    Parser.StartScan();

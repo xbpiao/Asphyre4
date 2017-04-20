@@ -17,7 +17,7 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Types, Classes, SysUtils, Graphics, JPEG;
+ Types, Classes, SysUtils, Graphics, jpeg;
 
 //---------------------------------------------------------------------------
 type

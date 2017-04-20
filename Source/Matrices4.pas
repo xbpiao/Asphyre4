@@ -40,11 +40,18 @@ interface
 // Enable the following option to take advantage of mathematical routines
 // from D3DX interface.
 //---------------------------------------------------------------------------
-{$define SupportD3DX}
+{.$define SupportD3DX}
 
 //---------------------------------------------------------------------------
 uses
- {$ifdef SupportD3DX}d3dx9,{$endif} SysUtils, Math, Vectors3;
+ {$ifdef SupportD3DX}
+   {$IFDEF AsphyreUseDx8}
+    D3DX8,
+   {$ELSE}
+    D3DX9,
+   {$ENDIF}
+ {$endif}
+ SysUtils, Math, Vectors3;
 
 //---------------------------------------------------------------------------
 type
@@ -314,14 +321,14 @@ end;
 
 //---------------------------------------------------------------------------
 function DetMtx3(a1, a2, a3, b1, b2, b3, c1, c2, c3: Single): Single;
-begin
+begin// 求行列式的值
  Result:= a1 * (b2 * c3 - b3 * c2) - b1 * (a2 * c3 - a3 * c2) +
   c1 * (a2 * b3 - a3 * b2);
 end;
 
 //---------------------------------------------------------------------------
 function AdjointMtx4(const m: TMatrix4): TMatrix4;
-begin
+begin// 计算标准伴随矩阵
  Result.Data[0, 0]:=  DetMtx3(m.Data[1, 1], m.Data[2, 1], m.Data[3, 1],
   m.Data[1, 2], m.Data[2, 2], m.Data[3, 2], m.Data[1, 3], m.Data[2, 3],
   m.Data[3, 3]);
@@ -379,7 +386,20 @@ end;
 function DetMtx4(const m: TMatrix4): Single;
 begin
  {$ifdef SupportD3DX}
- Result:= D3DXMatrixDeterminant(TD3DXMatrix(m));
+   {$IFDEF AsphyreUseDx8}
+     Result:= m.Data[0, 0] * DetMtx3(m.Data[1, 1], m.Data[2, 1], m.Data[3, 1],
+      m.Data[1, 2], m.Data[2, 2], m.Data[3, 2], m.Data[1, 3], m.Data[2, 3],
+      m.Data[3, 3]) - m.Data[0, 1] * DetMtx3(m.Data[1, 0], m.Data[2, 0],
+      m.Data[3, 0], m.Data[1, 2], m.Data[2, 2], m.Data[3, 2], m.Data[1, 3],
+      m.Data[2, 3], m.Data[3, 3]) + m.Data[0, 2] * DetMtx3(m.Data[1, 0],
+      m.Data[2, 0], m.Data[3, 0], m.Data[1, 1], m.Data[2, 1], m.Data[3, 1],
+      m.Data[1, 3], m.Data[2, 3], m.Data[3, 3]) - m.Data[0, 3] *
+      DetMtx3(m.Data[1, 0], m.Data[2, 0], m.Data[3, 0], m.Data[1, 1],
+      m.Data[2, 1], m.Data[3, 1], m.Data[1, 2], m.Data[2, 2], m.Data[3, 2]);
+
+   {$ELSE}
+     Result:= D3DXMatrixDeterminant(TD3DXMatrix(m));
+   {$ENDIF}
  {$else}
  Result:= m.Data[0, 0] * DetMtx3(m.Data[1, 1], m.Data[2, 1], m.Data[3, 1],
   m.Data[1, 2], m.Data[2, 2], m.Data[3, 2], m.Data[1, 3], m.Data[2, 3],

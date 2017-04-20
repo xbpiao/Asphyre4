@@ -116,6 +116,7 @@ begin
 
  Config.WindowHandle:= Self.Handle;
  Config.HardwareTL  := False;
+ Config.DepthStencil := dsNone;
 
  EventDeviceCreate.Subscribe(OnDeviceCreate, Sender);
  EventDeviceReset.Subscribe(OnDeviceReset, Sender);

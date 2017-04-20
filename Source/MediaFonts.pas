@@ -38,9 +38,14 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, D3DX9, Types, SysUtils, AsphyreXML, Vectors2px,
+ Windows, Types, SysUtils, AsphyreXML, Vectors2px,
  MediaUtils
- {$IFDEF DebugMode}, AsphyreDebug{$ENDIF};
+ {$IFDEF DebugMode}, AsphyreDebug{$ENDIF},
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 type

@@ -15,6 +15,7 @@ object MainForm: TMainForm
   Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnPaint = FormPaint
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13

@@ -48,12 +48,12 @@ function PointInRect(const Point: TPoint2px; const Rect: TRect): Boolean;
 //---------------------------------------------------------------------------
 // returns True if the given rectangle is within the specified rectangle
 //---------------------------------------------------------------------------
-function RectInRect(const Rect1, Rect2: TRect): Boolean;
+function RectInRect(const Rect1, Rect2: TRect): Boolean; inline;
 
 //---------------------------------------------------------------------------
 // returns True if the specified rectangles overlap
 //---------------------------------------------------------------------------
-function OverlapRect(const Rect1, Rect2: TRect): Boolean;
+function OverlapRect(const Rect1, Rect2: TRect): Boolean; inline;
 
 //---------------------------------------------------------------------------
 // returns True if the specified point is inside the triangle

@@ -36,6 +36,7 @@ unit AsphyreEvents;
 //---------------------------------------------------------------------------
 interface
 
+
 //---------------------------------------------------------------------------
 type
  TAsphyreEventCallback = procedure(Sender: TObject; EventParam: Pointer;
@@ -113,6 +114,12 @@ var
  // when an image or font could not be created or loaded.
  EventResolveFailed: TAsphyreEvent = nil;
 
+ // 在Present之前响应的事件，可在此挂接多个绘制事件来响应地未提交缓冲之前的绘制
+ EventBeforeFlip: TAsphyreEvent = nil;
+
+ // 在每个GuiObject加载后响应，可在此为每个加载进来的Gui进来事件加载和简单处理
+ EventGuiObjectLoadAfter: TAsphyreEvent = nil;
+
 //---------------------------------------------------------------------------
 implementation
 
@@ -136,11 +143,14 @@ var
 begin
  Result:= -1;
  for i:= 0 to Length(EventItems) - 1 do
-  if (@EventItems[i].Callback = @Callback) then
+ begin
+   if ( TMethod(EventItems[i].Callback).Code = TMethod(Callback).Code) and
+     ( TMethod(EventItems[i].Callback).Data = TMethod(Callback).Data) then
    begin
-    Result:= i;
-    Break;
-   end;
+     Result:= i;
+     Break;
+   end;//if
+ end;// for i
 end;
 
 //---------------------------------------------------------------------------
@@ -211,6 +221,8 @@ initialization
  EventSymbolResolve:= TAsphyreEvent.Create();
  EventResolveFailed:= TAsphyreEvent.Create();
 
+ EventBeforeFlip         := TAsphyreEvent.Create();
+ EventGuiObjectLoadAfter := TAsphyreEvent.Create();
 //---------------------------------------------------------------------------
 finalization
  EventResolveFailed.Free();
@@ -222,6 +234,8 @@ finalization
  EventDeviceReset.Free();
  EventDeviceDestroy.Free();
  EventDeviceCreate.Free();
-
+ 
+ EventBeforeFlip.Free();
+ EventGuiObjectLoadAfter.Free();
 //---------------------------------------------------------------------------
 end.

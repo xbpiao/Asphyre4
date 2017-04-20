@@ -76,6 +76,7 @@ type
 
   SampleLatency: Integer;
   SampleIndex: Integer;
+    FElapsedTime: Single;
 
   function RetreiveLatency(): Integer;
   procedure AppIdle(Sender: TObject; var Done: Boolean);
@@ -87,7 +88,7 @@ type
   property Delta  : Real read GetDelta;
   property Latency: Real read GetLatency;
   property FrameRate: Integer read FFrameRate;
-
+  property ElapsedTime: Single read FElapsedTime;
   procedure Process();
 
   constructor Create();
@@ -124,7 +125,7 @@ begin
 
  Speed := 60.0;
  MaxFPS:= 100;
-
+ FElapsedTime := 0.0; 
  FPrecision:= ppLow;
  if (QueryPerformanceFrequency(HighFreq)) then FPrecision:= ppHigh;
 
@@ -211,6 +212,11 @@ begin
  if (LatencyFP < MinLatency) then
   begin
    WaitAmount:= (MinLatency - LatencyFP) div FixedHigh;
+   if (WaitAmount < 0) or (WaitAmount > 10000) then
+   begin
+     WaitAmount := 10;
+   end;//if
+
    SleepEx(WaitAmount, True);
   end else WaitAmount:= 0;
 
@@ -238,7 +244,7 @@ begin
    Inc(FixedDelta, DeltaFP);
    Processed:= False;
   end;
-
+ FElapsedTime := Self.Latency * 0.001;
  // (7) Call timer event.
  if (Assigned(FOnTimer)) then FOnTimer(Self);
 end;

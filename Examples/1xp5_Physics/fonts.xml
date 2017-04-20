@@ -1,0 +1,16 @@
+<unires>
+
+<!-- 
+
+ This is a general font description mechanism. It specifies
+ the font size, the UID of font image and the location of its
+ description file.
+ 
+ -->
+ 
+<font-group name="/fonts/all" option="normal">
+ <!-- Tahoma System Font -->
+   <font uid="s/tahoma" type="system" name="tahoma" size="10" weight="normal" charset="ansi" quality="cleartype" />  
+</font-group>
+ 
+</unires>

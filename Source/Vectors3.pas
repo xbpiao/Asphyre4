@@ -56,6 +56,8 @@ type
   class operator Divide(const v: TVector3; const k: Single): TVector3;
 
   class operator Implicit(v: Single): TVector3;
+  class operator Equal(const a, b: TVector3): boolean;
+  class operator NotEqual(const a, b: TVector3): boolean;
 
   function GetXY(): TPoint2;
   function GetXYpx(): TPoint2px;
@@ -72,7 +74,7 @@ type
   procedure SetItem(Num: Integer; const Value: TVector3);
   function GetVector(Num: Integer): PVector3;
   procedure Request(Amount: Integer);
-  public
+ public
   property Count: Integer read DataCount;
   property Items[Num: Integer]: TVector3 read GetItem write SetItem; default;
   property Vector[Num: Integer]: PVector3 read GetVector;
@@ -106,8 +108,9 @@ const
  AxisZVec3: TVector3 = (x: 0.0; y: 0.0; z: 1.0);
 
 //---------------------------------------------------------------------------
-function Vector3(x, y, z: Single): TVector3;
+function Vector3(x, y, z: Single): TVector3; inline;
 function Length3(const v: TVector3): Single;
+function LengthSq3(const v: TVector3): Single;
 function Norm3(const v: TVector3): TVector3;
 function Lerp3(const v0, v1: TVector3; Alpha: Single): TVector3;
 function Dot3(const a, b: TVector3): Single;
@@ -116,12 +119,16 @@ function Angle3(const a, b: TVector3): Single;
 function Parallel3(const v, n: TVector3): TVector3;
 function Perp3(const v, n: TVector3): TVector3;
 
+//计算a在b上的投影
+function Vec3Projection(const a, b: TVector3): TVector3;
+
 //---------------------------------------------------------------------------
 implementation
 
 //---------------------------------------------------------------------------
 const
  CacheSize = 512;
+ cVerEpsilon = 0.00000001;
 
 //---------------------------------------------------------------------------
 class operator TVector3.Add(const a, b: TVector3): TVector3;
@@ -163,6 +170,12 @@ begin
  Result.z:= -v.z;
 end;
 
+class operator TVector3.NotEqual(const a, b: TVector3): boolean;
+begin
+  Result := not (SameValue(a.x, b.x, cVerEpsilon) and
+    SameValue(a.y, b.y, cVerEpsilon) and SameValue(a.z, b.z, cVerEpsilon));
+end;
+
 //---------------------------------------------------------------------------
 class operator TVector3.Multiply(const v: TVector3;
  const k: Single): TVector3;
@@ -179,6 +192,12 @@ begin
  Result.x:= v.x / k;
  Result.y:= v.y / k;
  Result.z:= v.z / k;
+end;
+
+class operator TVector3.Equal(const a, b: TVector3): boolean;
+begin
+  Result := SameValue(a.x, b.x, cVerEpsilon) and
+    SameValue(a.y, b.y, cVerEpsilon) and SameValue(a.z, b.z, cVerEpsilon);
 end;
 
 //---------------------------------------------------------------------------
@@ -221,6 +240,11 @@ end;
 function Length3(const v: TVector3): Single;
 begin
  Result:= Sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+end;
+
+function LengthSq3(const v: TVector3): Single;
+begin
+  Result:= v.x * v.x + v.y * v.y + v.z * v.z;
 end;
 
 //---------------------------------------------------------------------------
@@ -283,6 +307,16 @@ end;
 function Perp3(const v, n: TVector3): TVector3;
 begin
  Result:= v - Parallel3(v, n);
+end;
+
+function Vec3Projection(const a, b: TVector3): TVector3;
+var
+  dot: Single;
+  nb: TVector3;
+begin
+  nb := Norm3(b);
+  dot := Dot3(a, nb);
+  Result := nb * dot;
 end;
 
 //---------------------------------------------------------------------------

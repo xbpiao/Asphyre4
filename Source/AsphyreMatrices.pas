@@ -44,7 +44,14 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- {$ifdef SupportD3DX}d3dx9,{$endif} Vectors3, Matrices4;
+ {$ifdef SupportD3DX}
+   {$IFDEF AsphyreUseDx8}
+    D3DX8,
+   {$ELSE}
+    D3DX9,
+   {$ENDIF}
+ {$endif}
+  Vectors3, Matrices4;
 
 //---------------------------------------------------------------------------
 type

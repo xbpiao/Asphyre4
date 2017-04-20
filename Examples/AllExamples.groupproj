@@ -1,0 +1,104 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{8efd75c1-2afd-4d3d-9710-f050df30f925}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="1xp5_Physics\Physic.dproj" />
+    <Projects Include="BasicGui\BasicGui.dproj" />
+    <Projects Include="BasicShdr\BasicShdr.dproj" />
+    <Projects Include="BumpMapping\BumpMapping.dproj" />
+    <Projects Include="Landscape\Landscape.dproj" />
+    <Projects Include="Plasma\Plasma.dproj" />
+    <Projects Include="ShadowMap\ShadowMap.dproj" />
+    <Projects Include="TargetsNPanels\TargetsNPanels.dproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="ShadowMap">
+    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="" />
+  </Target>
+  <Target Name="ShadowMap:Clean">
+    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="ShadowMap:Make">
+    <MSBuild Projects="ShadowMap\ShadowMap.dproj" Targets="Make" />
+  </Target>
+  <Target Name="BasicGui">
+    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="" />
+  </Target>
+  <Target Name="BasicGui:Clean">
+    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="BasicGui:Make">
+    <MSBuild Projects="BasicGui\BasicGui.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Landscape">
+    <MSBuild Projects="Landscape\Landscape.dproj" Targets="" />
+  </Target>
+  <Target Name="Landscape:Clean">
+    <MSBuild Projects="Landscape\Landscape.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Landscape:Make">
+    <MSBuild Projects="Landscape\Landscape.dproj" Targets="Make" />
+  </Target>
+  <Target Name="TargetsNPanels">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="" />
+  </Target>
+  <Target Name="TargetsNPanels:Clean">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="TargetsNPanels:Make">
+    <MSBuild Projects="TargetsNPanels\TargetsNPanels.dproj" Targets="Make" />
+  </Target>
+  <Target Name="BasicShdr">
+    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="" />
+  </Target>
+  <Target Name="BasicShdr:Clean">
+    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="BasicShdr:Make">
+    <MSBuild Projects="BasicShdr\BasicShdr.dproj" Targets="Make" />
+  </Target>
+  <Target Name="BumpMapping">
+    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="" />
+  </Target>
+  <Target Name="BumpMapping:Clean">
+    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="BumpMapping:Make">
+    <MSBuild Projects="BumpMapping\BumpMapping.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Plasma">
+    <MSBuild Projects="Plasma\Plasma.dproj" Targets="" />
+  </Target>
+  <Target Name="Plasma:Clean">
+    <MSBuild Projects="Plasma\Plasma.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Plasma:Make">
+    <MSBuild Projects="Plasma\Plasma.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Physic">
+    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="" />
+  </Target>
+  <Target Name="Physic:Clean">
+    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Physic:Make">
+    <MSBuild Projects="1xp5_Physics\Physic.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="ShadowMap;BasicGui;Landscape;TargetsNPanels;BasicShdr;BumpMapping;Plasma;Physic" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="ShadowMap:Clean;BasicGui:Clean;Landscape:Clean;TargetsNPanels:Clean;BasicShdr:Clean;BumpMapping:Clean;Plasma:Clean;Physic:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="ShadowMap:Make;BasicGui:Make;Landscape:Make;TargetsNPanels:Make;BasicShdr:Make;BumpMapping:Make;Plasma:Make;Physic:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

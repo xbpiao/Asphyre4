@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{A430AFC2-4C03-49FE-ACF4-16839A54989A}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  
+    
+    
+    
+    <Projects>
+      <Projects Name="ShadowMap.exe">ShadowMap\ShadowMap.bdsproj</Projects>
+      <Projects Name="BasicGui.exe">BasicGui\BasicGui.bdsproj</Projects>
+      <Projects Name="Landscape.exe">Landscape\Landscape.bdsproj</Projects>
+      <Projects Name="TargetsNPanels.exe">TargetsNPanels\TargetsNPanels.bdsproj</Projects>
+      <Projects Name="BasicShdr.exe">BasicShdr\BasicShdr.bdsproj</Projects>
+      <Projects Name="BumpMapping.exe">BumpMapping\BumpMapping.bdsproj</Projects>
+      <Projects Name="Plasma.exe">Plasma\Plasma.bdsproj</Projects>
+      <Projects Name="EZPLAYCube.exe">..\..\..\..\..\Works\AsphyreStudy\Asphyre410Study\AsphyreEZPLAY\EZPLAYCube.bdsproj</Projects>
+      <Projects Name="Vertices_Asphyre.exe">..\..\..\..\..\Works\AsphyreStudy\01.VerticesUseAsphyre\Vertices_Asphyre.bdsproj</Projects>
+      <Projects Name="SimpleSample.exe">E:\DX9_200610\samples\Samples\Delphi\Direct3D\SimpleSample\SimpleSample.bdsproj</Projects>
+      <Projects Name="CompiledEffect.exe">E:\DX9_200610\samples\Samples\Delphi\Direct3D\CompiledEffect\CompiledEffect.bdsproj</Projects>
+      <Projects Name="Direct3D9Ex.exe">E:\DX9_200610\samples\Samples\Delphi\Direct3D\Direct3D9Ex\Direct3D9Ex.bdsproj</Projects>
+      <Projects Name="Targets">ShadowMap.exe BasicGui.exe Landscape.exe TargetsNPanels.exe BasicShdr.exe BumpMapping.exe Plasma.exe EZPLAYCube.exe Vertices_Asphyre.exe SimpleSample.exe CompiledEffect.exe Direct3D9Ex.exe</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

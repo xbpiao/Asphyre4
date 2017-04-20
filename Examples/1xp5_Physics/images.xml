@@ -1,0 +1,40 @@
+<unires>
+	<!-- comment -->
+	<image-group name="/artwork/base" option="normal">
+		<image uid="/images/bu">
+			<format type="DXT3" miplevels="auto" colorkey="$ff00ff00 "/>
+			<pattern width="70" height="86" count="40" padx="0" pady="0"/>
+			<textures count="1">
+				<texture num="0" source="bu.png"/>
+			</textures>
+		</image>
+		<image uid="/images/box">
+			<format type="DXT3" miplevels="auto" colorkey="$ff00ff00 "/>
+			<pattern width="32" height="32" count="1" padx="0" pady="0"/>
+			<textures count="1">
+				<texture num="0" source="box.bmp"/>
+			</textures>
+		</image>
+		<image uid="/images/cylinder">
+			<format type="DXT3" miplevels="auto" colorkey="$ff00ff00 "/>
+			<pattern width="32" height="32" count="1" padx="0" pady="0"/>
+			<textures count="1">
+				<texture num="0" source="cylinder.bmp"/>
+			</textures>
+		</image>
+		<image uid="/images/plate">
+			<format type="DXT3" miplevels="auto" colorkey="$ff00ff00 "/>
+			<pattern width="16" height="32" count="1" padx="0" pady="0"/>
+			<textures count="1">
+				<texture num="0" source="plate.bmp"/>
+			</textures>
+		</image>
+		<image uid="/images/point">
+			<format type="DXT3" miplevels="auto" colorkey="$ff00ff00 "/>
+			<pattern width="16" height="16" count="1" padx="0" pady="0"/>
+			<textures count="1">
+				<texture num="0" source="point.bmp"/>
+			</textures>
+		</image>
+	</image-group>
+</unires>

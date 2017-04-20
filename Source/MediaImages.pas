@@ -38,8 +38,19 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, D3DX9, Types, SysUtils, AsphyreXML, MediaUtils
- {$IFDEF DebugMode}, AsphyreDebug{$ENDIF};
+ Types, SysUtils, AsphyreXML, MediaUtils
+ {$IFDEF DebugMode}, AsphyreDebug{$ENDIF},
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+   {$IFNDEF AsphyreInDll}
+   , D3DX8
+   {$ENDIF}
+ {$ELSE}
+ Direct3D9
+   {$IFNDEF AsphyreInDll}
+   , D3DX9
+   {$ENDIF}
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 type
@@ -104,7 +115,8 @@ type
   procedure Clear();
 
   function Find(const uid: string; Option: string): PImageDesc;
-  procedure ParseLink(const Link: string);
+  procedure ParseLink(const Link: string); overload;
+  procedure ParseLink(const Root : TXMLNode); overload;
 
   destructor Destroy(); override;
  end;
@@ -115,6 +127,12 @@ var
 
 //---------------------------------------------------------------------------
 implementation
+
+{$IFDEF AsphyreInDll}
+// 为减少引用D3DX9、D3DX8单元，注意D3DX_DEFAULT的值要与D3DX9、D3DX8单元中定义一致
+const
+  D3DX_DEFAULT          = Cardinal(-1);
+{$ENDIF}
 
 //---------------------------------------------------------------------------
 constructor TImageGroup.Create(const AName: string);
@@ -388,21 +406,18 @@ begin
  Result:= Data[Index];
 end;
 
-//---------------------------------------------------------------------------
-procedure TImageGroups.ParseLink(const Link: string);
+procedure TImageGroups.ParseLink(const Root: TXMLNode);
 var
  nName: string;
- Root : TXMLNode;
  gName: string;
  Group: TImageGroup;
  Text : string;
  i: Integer;
 begin
  {$IFDEF DebugMode}
- DebugLog('Begin entry [image groups]: ' + Link);
+ DebugLog('Begin entry [image groups]: ParseLink(const Root: TXMLNode);');
  {$ENDIF}
 
- Root:= LoadLinkXML(Link);
  if (Root = nil) then Exit;
 
  if (LowerCase(Root.Name) <> 'unires')  then
@@ -439,6 +454,23 @@ begin
 
  Root.Free();
 
+ {$IFDEF DebugMode}
+ DebugLog('End entry [image groups]: ParseLink(const Root: TXMLNode);');
+ {$ENDIF}
+end;
+
+//---------------------------------------------------------------------------
+procedure TImageGroups.ParseLink(const Link: string);
+var
+ Root : TXMLNode;
+begin
+ {$IFDEF DebugMode}
+ DebugLog('Begin entry [image groups]: ' + Link);
+ {$ENDIF}
+
+ Root:= LoadLinkXML(Link);
+ ParseLink(Root);
+ 
  {$IFDEF DebugMode}
  DebugLog('End entry [image groups]: ' + Link);
  {$ENDIF}

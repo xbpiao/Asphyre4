@@ -38,7 +38,12 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Types, SysUtils, D3DX9, Vectors2px;
+ Windows, Types, SysUtils, Vectors2px,
+ {$IFDEF AsphyreUseDx8}
+   D3DX8
+ {$ELSE}
+   D3DX9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 type
@@ -248,6 +253,14 @@ function TAsphyreSystemFont.Initialize(const FontName: string;
  Quality: TFontQualityType; Charset: TFontCharsetType): Boolean;
 var
  Width: Integer;
+ {$IFDEF AsphyreUseDx8}
+ CurLogFont: TLogFont;
+ {$ELSE}
+   {$IFDEF UseOutputDebugString}
+     FontDesc : TD3DXFontDescW;
+   {$ENDIF}
+ {$ENDIF}
+ //CurLogFont: TD3DXFontDesc;
 begin
  if (FOwner = nil)or(FOwner.Device = nil)or
   (not (FOwner.Device is TAsphyreDevice))or(FDXFont <> nil) then
@@ -258,10 +271,63 @@ begin
 
  Width:= -MulDiv(Size, PixelsPerInch, 72);
 
+ {$IFDEF AsphyreUseDx8}
+ FillChar(CurLogFont, SizeOf(TLogFont), 0);
+ //CurLogFont.lfWidth := Width;
+ CurLogFont.lfWidth := 0;
+ CurLogFont.lfHeight := Width;
+ CurLogFont.lfWeight := API_WEIGHT[Weight];
+ CurLogFont.lfItalic := Byte(Italic);
+ CurLogFont.lfCharSet := API_CHARSET[Charset];
+ CurLogFont.lfQuality := API_QUALITY[Quality];
+
+ //CurLogFont.lfFaceName := PChar(FontName);
+ StrLCopy(CurLogFont.lfFaceName, PChar(FontName), LF_FACESIZE);
+
+ CurLogFont.lfOutPrecision := OUT_DEFAULT_PRECIS; // 输出精度
+ CurLogFont.lfClipPrecision := CLIP_DEFAULT_PRECIS;
+ CurLogFont.lfPitchAndFamily := DEFAULT_PITCH or FF_DONTCARE;
+ 
+ Result := Succeeded(D3DXCreateFontIndirect(TAsphyreDevice(FOwner.Device).Dev8,
+   CurLogFont, FDXFont));
+
+    {$IFDEF UseOutputDebugString}
+    if Result and Succeeded(FDXFont.GetLogFont(CurLogFont)) then;
+    OutputDebugStringA(PAnsiChar('TAsphyreSystemFont.Initialize' +
+      FontName + ' Height=' + IntToStr(CurLogFont.lfHeight) +
+      ' Width=' + IntToStr(CurLogFont.lfWidth)));
+    {$ENDIF}
+
+ {$ELSE}
  Result:= Succeeded(D3DXCreateFont(TAsphyreDevice(FOwner.Device).Dev9,
   Width, 0, API_WEIGHT[Weight], D3DX_DEFAULT, Italic, API_CHARSET[Charset],
   OUT_DEFAULT_PRECIS, API_QUALITY[Quality], DEFAULT_PITCH or FF_DONTCARE,
   PChar(FontName), FDXFont));
+
+// FillChar(CurLogFont, SizeOf(TLogFont), 0);
+// CurLogFont.Width := 0;
+// CurLogFont.Height := Width;
+// CurLogFont.Weight := API_WEIGHT[Weight];
+// CurLogFont.Italic := Italic;
+// CurLogFont.CharSet := API_CHARSET[Charset];
+// CurLogFont.Quality := API_QUALITY[Quality];
+//
+// //CurLogFont.lfFaceName := PChar(FontName);
+// StrLCopy(CurLogFont.FaceName, PChar(FontName), LF_FACESIZE);
+//
+// CurLogFont.OutputPrecision := OUT_DEFAULT_PRECIS; // 输出精度
+// CurLogFont.PitchAndFamily := DEFAULT_PITCH or FF_DONTCARE;
+// Result := Succeeded(D3DXCreateFontIndirect(TAsphyreDevice(FOwner.Device).Dev9,
+//   CurLogFont, FDXFont));
+
+    {$IFDEF UseOutputDebugString}
+    if Result and Succeeded(FDXFont.GetDescW(FontDesc)) then;
+    OutputDebugStringA(PAnsiChar('TAsphyreSystemFont.Initialize' +
+      FontName + ' DC=' + IntToHex(FDXFont.GetDC, 8) +
+      ' Height=' + IntToStr(FontDesc.Height) +
+      ' Width=' + IntToStr(FontDesc.Width)));
+    {$ENDIF}
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -290,8 +356,13 @@ procedure TAsphyreSystemFont.TextOut(const Text: WideString;
 begin
  if (FDXFont = nil) then Exit;
 
+ {$IFDEF AsphyreUseDx8}
+ FDXFont.DrawTextW(PWideChar(Text), Length(Text), Rect,
+  API_FORMAT(Format), Color);
+ {$ELSE}
  FDXFont.DrawTextW(nil, PWideChar(Text), Length(Text), @Rect,
   API_FORMAT(Format), Color);
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -303,9 +374,13 @@ begin
  if (FDXFont = nil) then Exit;
 
  DrawRect:= Bounds(x, y, 1, 1);
-
+ {$IFDEF AsphyreUseDx8}
+ FDXFont.DrawTextW(PWideChar(Text), Length(Text), DrawRect, DT_LEFT or
+  DT_TOP or DT_NOCLIP or DT_SINGLELINE, Color);
+ {$ELSE}
  FDXFont.DrawTextW(nil, PWideChar(Text), Length(Text), @DrawRect, DT_LEFT or
   DT_TOP or DT_NOCLIP or DT_SINGLELINE, Color);
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -320,10 +395,13 @@ begin
   end;
 
  DrawRect:= Bounds(0, 0, 1, 1);
-
+ {$IFDEF AsphyreUseDx8}
+ FDXFont.DrawTextW(PWideChar(Text), Length(Text), DrawRect, DT_LEFT or
+  DT_TOP or DT_NOCLIP or DT_SINGLELINE or DT_CALCRECT , 0);
+ {$ELSE}
  FDXFont.DrawTextW(nil, PWideChar(Text), Length(Text), @DrawRect, DT_LEFT or
   DT_TOP or DT_NOCLIP or DT_SINGLELINE or DT_CALCRECT , 0);
-
+ {$ENDIF}
  Result.X:= DrawRect.Right - DrawRect.Left;
  Result.Y:= DrawRect.Bottom - DrawRect.Top;
 end;

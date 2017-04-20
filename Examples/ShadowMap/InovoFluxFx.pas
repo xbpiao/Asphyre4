@@ -38,9 +38,14 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, d3dx9, Vectors2, Vectors3, Matrices3, Matrices4, AsphyreColors,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8,
+ {$ELSE}
+ Direct3D9, D3DX9,
+ {$ENDIF}
+ Vectors2, Vectors3, Matrices3, Matrices4, AsphyreColors,
  AsphyreDevices, AsphyreShaderFX, AsphyreMeshes, AsphyreTextures,
- AsphyreImages;
+ AsphyreImages ;
 
 //---------------------------------------------------------------------------
 type
@@ -71,8 +76,13 @@ type
   procedure Describe(); override;
   procedure UpdateParam(Code: Integer; out DataPtr: Pointer;
    out DataSize: Integer); override;
+  {$IFDEF AsphyreUseDx8}
   procedure UpdateTexture(Code: Integer;
-   out ParamTex: IDirect3DTexture9); override;
+    out ParamTex: IDirect3DTexture8); override;
+  {$ELSE}
+  procedure UpdateTexture(Code: Integer;
+    out ParamTex: IDirect3DTexture9); override;
+  {$ENDIF}
  public
   // World(Object) * View(Light) * Projection(Light)
   property LightWVP: TMatrix4 read FLightWVP write FLightWVP;
@@ -271,6 +281,24 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+procedure TInovoFluxFx.UpdateTexture(Code: Integer;
+ out ParamTex: IDirect3DTexture8);
+begin
+ ParamTex:= nil;
+
+ case Code of
+  RawSMapTex:
+   if (FSMapTex <> nil) then ParamTex:= FSMapTex.Tex9;
+
+  RawSkinTex:
+   if (FSkinTex <> nil) then ParamTex:= FSkinTex.Tex9;
+
+  RawBumpTex:
+   if (FBumpTex <> nil) then ParamTex:= FBumpTex.Tex9;
+ end;
+end;
+{$ELSE}
 procedure TInovoFluxFx.UpdateTexture(Code: Integer;
  out ParamTex: IDirect3DTexture9);
 begin
@@ -287,7 +315,7 @@ begin
    if (FBumpTex <> nil) then ParamTex:= FBumpTex.Tex9;
  end;
 end;
-
+{$ENDIF}
 //---------------------------------------------------------------------------
 procedure TInovoFluxFx.DrawMesh(Mesh: TAsphyreCustomMesh);
 var

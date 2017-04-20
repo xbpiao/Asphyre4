@@ -23,6 +23,8 @@ uses
   Windows, SysUtils, Classes, Controls, Forms, Dialogs, ComCtrls, AsphyreTypes,
   AsphyreDevices, IsoLandscape;
 
+{.$DEFINE UseAsphyreBmpFont}
+
 //---------------------------------------------------------------------------
 type
   TMainForm = class(TForm)
@@ -59,7 +61,8 @@ var
 //---------------------------------------------------------------------------
 implementation
 uses
- MediaImages, MediaFonts, AsphyreTimer, AsphyreEffects, AsphyreEvents;
+ MediaImages, MediaFonts, AsphyreTimer, AsphyreEffects, AsphyreEvents,
+ AsphyreSystemFonts{×ÖÌåÏà¹Ø};
 {$R *.dfm}
 
 //---------------------------------------------------------------------------
@@ -67,7 +70,9 @@ procedure TMainForm.FormCreate(Sender: TObject);
 begin
  // retreive image and font descriptions
  ImageGroups.ParseLink('/landscape.xml');
+ {$IFDEF UseAsphyreBmpFont}
  FontGroups.ParseLink('/landscape.xml');
+ {$ENDIF}
 
  if (not Devices.Initialize(SetupDevice, Self)) then
   begin
@@ -108,7 +113,7 @@ begin
  Config.Windowed:= True;
 
  Config.WindowHandle:= Self.Handle;
- Config.HardwareTL  := False;
+ Config.HardwareTL  := True;
 
  // Subscribe to events related to this device.
  EventDeviceCreate.Subscribe(OnDeviceCreated, Sender);
@@ -127,6 +132,12 @@ begin
  if (Sender is TAsphyreDevice) then
   with Sender as TAsphyreDevice do
    WaterIndex:= Images.ResolveImage('water');
+
+  {$IFDEF UseAsphyreBmpFont}
+  {$ELSE}
+  DefDevice.SysFonts.CreateFont('s/tahoma', 'tahoma', 9, False, fwtBold,
+    fqtClearType, fctAnsi);
+  {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -160,18 +171,42 @@ procedure TMainForm.RenderPrimary(Sender: TAsphyreDevice; Tag: TObject);
 begin
  Land.Render();
 
- with Sender.Fonts.Font['x/squired'] do
-  begin
-   Options.Kerning:= -5;
-   TextOut('Frame Rate: ' + IntToStr(Timer.FrameRate), 4, 4, cColor2($FFFFD000,
-    $FFFFFFD0));
+ {$IFDEF UseAsphyreBmpFont}
+    with Sender.Fonts.Font['x/squired'] do
+    begin
+     Options.Kerning:= -5;
 
-   TextOut('Press ''G'' to switch wireframe grid.', 4, 28, cColor2($FFFFFFFF,
-    $FF00FF00));
+     TextOut('Frame Rate: ' + IntToStr(Timer.FrameRate), 4, 4, cColor2($FFFFD000,
+      $FFFFFFD0));
 
-   TextOut('To scroll, move your mouse to edges.', 4, 52, cColor2($FFFF0000,
-    $FFFFE000));
-  end;
+     TextOut('Press ''G'' to switch wireframe grid.', 4, 28, cColor2($FFFFFFFF,
+      $FF00FF00));
+
+     TextOut('To scroll, move your mouse to edges.', 4, 52, cColor2($FFFF0000,
+      $FFFFE000));
+
+      {$IFDEF AsphyreUseDx8}
+        TextOut('Use Dx8', 4, ClientHeight - 46, $FFFF0000);
+      {$ELSE}
+        TextOut('Use Dx9', 4, ClientHeight - 46, $FFFF0000);
+      {$ENDIF}
+    end;// with
+ {$ELSE}
+   with Sender.SysFonts.Font['s/tahoma'] do
+   begin
+     TextOut('Frame Rate: ' + IntToStr(Timer.FrameRate), 4, 4, $FFFFFFD0);
+
+     TextOut('Press ''G'' to switch wireframe grid.', 4, 28, $FF00FF00);
+
+     TextOut('To scroll, move your mouse to edges.', 4, 52, $FFFF0000);
+
+      {$IFDEF AsphyreUseDx8}
+        TextOut('Use Dx8', 4, ClientHeight - 46, $FFFF0000);
+      {$ELSE}
+        TextOut('Use Dx9', 4, ClientHeight - 46, $FFFF0000);
+      {$ENDIF}
+   end;// with
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------

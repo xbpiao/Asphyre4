@@ -49,6 +49,8 @@ type
   LastShift : TShiftState;
   LastOver  : TGuiControl;
   LastClick : TGuiControl;
+
+  FLastClick : TGuiControl; // 除非点空否则总是最后点击的控件
   ClickLevel: Integer;
  protected
   procedure DoMouseEvent(const Pos: TPoint2px; Event: TMouseEventType;
@@ -73,6 +75,9 @@ type
   // being deleted.
   procedure RemoveRef();
 
+  property NowLastOver  : TGuiControl read LastOver;
+  property NowLastClick : TGuiControl read FLastClick;
+
   procedure Draw();
 
   constructor Create(AOwner: TGuiObject); override;
@@ -83,7 +88,7 @@ implementation
 
 //---------------------------------------------------------------------------
 uses
- GuiUtils, GuiForms;
+ GuiUtils, GuiForms, GuiCnForms, GuiCnWebForms;
 
 //---------------------------------------------------------------------------
 constructor TGuiWorkspace.Create(AOwner: TGuiObject);
@@ -91,7 +96,9 @@ begin
  inherited;
 
  FMousePos := Point(0, 0);
+ LastClick := nil;
  LastOver  := nil;
+ FLastClick := nil;
  ClickLevel:= 0;
 end;
 
@@ -163,7 +170,8 @@ var
 begin
  // (1) Find the control pointed by the mouse.
  CtrlOver:= FindCtrlAt(MousePos);
-
+ if (Event = metDown) then
+   FLastClick := CtrlOver;// 保证最后选中情况正确
  // (2) Whom to send mouse event?
  EventCtrl:= CtrlOver;
  if (LastClick <> nil) then EventCtrl:= LastClick;
@@ -171,13 +179,28 @@ begin
  // (3) Check whether a user pressed mouse button.
  if (Event = metDown)and(CtrlOver <> nil) then
   begin
+
+   
    if (ClickLevel <= 0) then
     begin
      CtrlOver.SetFocus();
      LastClick:= CtrlOver;
-    end;
+    end
+    else
+    begin{ 目前该情况仅出现在内嵌FireFox时的拖拽时出现 }
+//      if (CtrlOver is TGuiForm) or (CtrlOver is TGuiCnForm) or
+//       (CtrlOver is TGuiCnWebForm) then{ 仅限制在Form级别否则会导致其它无法正确收到双击事件 }
+      begin{ 当遗漏MouseUP消息时可做个小小的修正，但MouseOver得到不到正确响应}
+        LastOver := LastClick;
+        LastClick := CtrlOver;
+        EventCtrl := CtrlOver;
+        ClickLevel := 0;
+      end;// if
+    end;// if
 
-   if (LastClick is TGuiForm) then LastClick.SetFocus();
+   { 使Form可在SetFocus中响应提前 }
+   if (LastClick is TGuiForm) or (LastClick is TGuiCnForm) or
+     (LastClick is TGuiCnWebForm) then LastClick.SetFocus();
    Inc(ClickLevel);
   end;
 
@@ -213,6 +236,11 @@ begin
     
    LastOver:= CtrlOver;
   end;
+
+ if FLastClick = nil then
+ begin{ 去掉所有的焦点 }
+   FocusIndex := -1;
+ end;// if
 end;
 
 //---------------------------------------------------------------------------
@@ -246,6 +274,8 @@ procedure TGuiWorkspace.RemoveRef();
 begin
  LastOver:= nil;
  LastClick:= nil;
+ ClickLevel := 0;
+ FocusIndex := -1;// 使所有无焦点
 end;
 
 //---------------------------------------------------------------------------

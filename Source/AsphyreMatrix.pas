@@ -38,7 +38,12 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, D3DX9, Vectors3, Matrices4;
+ Vectors3, Matrices4,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //---------------------------------------------------------------------------
 type

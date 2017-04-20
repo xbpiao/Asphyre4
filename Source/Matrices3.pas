@@ -38,7 +38,8 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Vectors2;
+ Vectors2,
+ Vectors3;
 
 //---------------------------------------------------------------------------
 type
@@ -51,6 +52,7 @@ type
   class operator Multiply(const a, b: TMatrix3): TMatrix3;
   class operator Multiply(const Mtx: TMatrix3; Theta: Single): TMatrix3;
   class operator Multiply(const v: TPoint2; const m: TMatrix3): TPoint2;
+  class operator Multiply(const v: TVector3; const m: TMatrix3): TVector3;
   class operator Divide(const Mtx: TMatrix3; Theta: Single): TMatrix3;
  end;
 
@@ -129,6 +131,14 @@ class operator TMatrix3.Multiply(const v: TPoint2;
 begin
  Result.x:= (v.x * m.Data[0, 0]) + (v.y * m.Data[1, 0]) + m.Data[2, 0];
  Result.y:= (v.x * m.Data[0, 1]) + (v.y * m.Data[1, 1]) + m.Data[2, 1];
+end;
+
+//---------------------------------------------------------------------------
+class operator TMatrix3.Multiply(const v: TVector3; const m: TMatrix3): TVector3;
+begin// ×ó³Ë
+ Result.x:= (v.x * m.Data[0, 0]) + (v.y * m.Data[1, 0]) + (v.z * m.Data[2, 0]);
+ Result.y:= (v.x * m.Data[0, 1]) + (v.y * m.Data[1, 1]) + (v.z * m.Data[2, 1]);
+ Result.z:= (v.x * m.Data[0, 1]) + (v.y * m.Data[1, 1]) + (v.z * m.Data[2, 1]);
 end;
 
 //--------------------------------------------------------------------------

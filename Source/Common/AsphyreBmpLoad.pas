@@ -76,13 +76,25 @@ begin
    end;
   // Truevision TARGA
   ifTGA:
-   Result:= LoadTGAtoBMP(Stream, Dest);
+    try
+      Result:= LoadTGAtoBMP(Stream, Dest);
+    except
+      Result:= False;
+    end;
   // JPEG
   ifJPEG:
-   Result:= LoadJPGtoBMP(Stream, Dest);
+    try
+      Result:= LoadJPGtoBMP(Stream, Dest);
+    except
+      Result:= False;
+    end;
   // Portable Network Graphics
   ifPNG:
-   Result:= LoadPNGtoBMP(Stream, Dest);
+    try
+      Result:= LoadPNGtoBMP(Stream, Dest);
+    except
+      Result:= False;
+    end;
   else
    Result:= False;
  end;
@@ -108,13 +120,25 @@ begin
    end;
   // Truevision TARGA
   ifTGA:
-   Result:= LoadTGAtoBMP(FileName, Dest);
+    try
+      Result:= LoadTGAtoBMP(FileName, Dest);
+    except
+      Result:= False;
+    end;
   // JPEG
   ifJPEG:
-   Result:= LoadJPGtoBMP(FileName, Dest);
+    try
+      Result:= LoadJPGtoBMP(FileName, Dest);
+    except
+      Result:= False;
+    end;
   // Portable Network Graphics
   ifPNG:
-   Result:= LoadPNGtoBMP(FileName, Dest);
+    try
+      Result:= LoadPNGtoBMP(FileName, Dest);
+    except
+      Result:= False;
+    end;
   else
    Result:= False;
  end;
@@ -137,13 +161,25 @@ begin
    end;
   // Truevision TARGA
   ifTGA:
-   Result:= SaveBMPtoTGA(Stream, Source, [tfCompressed]);
+    try
+      Result:= SaveBMPtoTGA(Stream, Source, [tfCompressed]);
+    except
+      Result:= False;
+    end;
   // JPEG
   ifJPEG:
-   Result:= SaveBMPtoJPG(Stream, Source, [jfProgressive], 90);
+    try
+      Result:= SaveBMPtoJPG(Stream, Source, [jfProgressive], 90);
+    except
+      Result:= False;
+    end;
   // Portable Network Graphics
   ifPNG:
-   Result:= SaveBMPtoPNG(Stream, Source, 9);
+    try
+      Result:= SaveBMPtoPNG(Stream, Source, 9);
+    except
+      Result:= False;
+    end;
   else
    Result:= False;
  end;
@@ -169,13 +205,25 @@ begin
    end;
   // Truevision TARGA
   ifTGA:
-   Result:= SaveBMPtoTGA(FileName, Source, [tfCompressed]);
+    try
+      Result:= SaveBMPtoTGA(FileName, Source, [tfCompressed]);
+    except
+      Result:= False;
+    end;
   // JPEG
   ifJPEG:
-   Result:= SaveBMPtoJPG(FileName, Source, [jfProgressive], 87);
+    try
+      Result:= SaveBMPtoJPG(FileName, Source, [jfProgressive], 87);
+    except
+      Result:= False;
+    end;
   // Portable Network Graphics
   ifPNG:
-   Result:= SaveBMPtoPNG(FileName, Source, 9);
+    try
+      Result:= SaveBMPtoPNG(FileName, Source, 9);
+    except
+      Result:= False;
+    end;
   else
    Result:= False;
  end;

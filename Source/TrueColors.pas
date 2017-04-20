@@ -5,7 +5,12 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Direct3D9, AsphyreTypes;
+  AsphyreTypes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+ {$ELSE}
+ Direct3D9
+ {$ENDIF};
 
 //---------------------------------------------------------------------------
 type

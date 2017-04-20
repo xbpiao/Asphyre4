@@ -163,8 +163,8 @@ function cColorAlpha2(Color, Alpha: Cardinal): TColor2; overload;
 function cColorAlpha2(Color1, Color2, Alpha1, Alpha2: Cardinal): TColor2; overload;
 
 //---------------------------------------------------------------------------
-function cColor4(Color: Cardinal): TColor4; overload;
-function cColor4(Color1, Color2, Color3, Color4: Cardinal): TColor4; overload;
+function cColor4(Color: Cardinal): TColor4; overload; inline;
+function cColor4(Color1, Color2, Color3, Color4: Cardinal): TColor4; overload; inline;
 function cRGB4(r, g, b: Cardinal; a: Cardinal = 255): TColor4; overload;
 function cRGB4(r1, g1, b1, a1, r2, g2, b2, a2: Cardinal): TColor4; overload;
 function cGray4(Gray: Cardinal): TColor4; overload;
@@ -216,8 +216,8 @@ function pRotate4c(const Origin, Size: TPoint2; Angle: Real;
 
 //---------------------------------------------------------------------------
 function pxBounds4(Left, Top, Width, Height: Integer): TPoint4px;
-function pxRect4(Left, Top, Right, Bottom: Integer): TPoint4px; overload;
-function pxRect4(const Rect: TRect): TPoint4px; overload;
+function pxRect4(Left, Top, Right, Bottom: Integer): TPoint4px; overload; inline;
+function pxRect4(const Rect: TRect): TPoint4px; overload; inline;
 function pxRotate90r(const Points: TPoint4px): TPoint4px;
 
 //---------------------------------------------------------------------------

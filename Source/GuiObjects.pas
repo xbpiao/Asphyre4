@@ -133,7 +133,7 @@ implementation
 
 //---------------------------------------------------------------------------
 uses
- GuiSkins, GuiRegistry;
+ GuiSkins, GuiRegistry, AsphyreEvents;
 
 //---------------------------------------------------------------------------
 const
@@ -587,6 +587,8 @@ var
  VFOpt : TFontOptions;
  VSkin : TGuiSkin;
  VFCol : TGuiFontCol;
+{ 2007-07-07 12:50 Add by Piao40993470}
+ VWideString: WideString;
 begin
  FName:= Parent.FieldValue['name'];
 
@@ -693,6 +695,12 @@ begin
        WriteProperty(Prop.Code, VFCol);
        VFCol.Free();
       end;
+
+      gdtWideString:
+      begin{ 2007-07-07 12:49 Add by Piao40993470}
+        VWideString := ParseWideStringField(Node);
+        WriteProperty(Prop.Code, PWideChar(VWideString));
+      end;// gdtWideString
      end; // case
     end; // if Property
    if (NodeName = 'control') then
@@ -732,7 +740,12 @@ begin
       if (LowerCase(Child.Name) = 'control') then
        begin
         Ctrl:= CreateGuiClass(LowerCase(Child.FieldValue['class']), Self);
-        if (Ctrl <> nil) then Ctrl.LoadFromXML(Child);
+        if (Ctrl <> nil) then
+        begin
+          Ctrl.LoadFromXML(Child);
+          { 根据不同的ClassType处理加载后的相关事宜 }
+          EventGuiObjectLoadAfter.Notify(TObject(Ctrl.ClassType), Ctrl, nil);
+        end;// if
        end;
      end;
 

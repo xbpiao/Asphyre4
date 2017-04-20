@@ -63,6 +63,9 @@ type
   procedure AcquirePanelEvents();
   procedure SetEventForm(const Value: TForm);
     procedure SetEventPanel(const Value: TPanel);
+  function GetCtrl(const Name: string): TGuiControl;
+
+ public // 为了能在Dll中使用外部事件将其公开
   procedure OwnerMouseDown(Sender: TObject; Button: TMouseButton;
    Shift: TShiftState; X, Y: Integer);
   procedure OwnerMouseUp(Sender: TObject; Button: TMouseButton;
@@ -74,7 +77,6 @@ type
   procedure OwnerClick(Sender: TObject);
   procedure OwnerDblClick(Sender: TObject);
 
-  function GetCtrl(const Name: string): TGuiControl;
  public
   property EventForm : TForm read FEventForm write SetEventForm;
   property EventPanel: TPanel read FEventPanel write SetEventPanel;

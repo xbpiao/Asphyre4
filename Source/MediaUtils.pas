@@ -38,7 +38,13 @@ interface
 
 //---------------------------------------------------------------------------
 uses
- Windows, Direct3D9, Classes, SysUtils, AsphyreDb, AsphyreXML, AsphyreTypes;
+ Windows, Classes, SysUtils, AsphyreDb, AsphyreXML, AsphyreTypes,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8
+ {$ELSE}
+ Direct3D9
+ {$ENDIF}
+;
 
 //---------------------------------------------------------------------------
 {$WARN SYMBOL_PLATFORM OFF}
@@ -224,11 +230,24 @@ function ParseVAlign(const Text: string;
  AutoAlign: TVerticalAlign = vaCenter): TVerticalAlign;
 
 //---------------------------------------------------------------------------
+// ParseWideStringField()
+//
+// <tag widestring="我爱微微" />
+// <tag utf8text="E68891E788B1E5BEAEE5BEAE" />
+// <tag utf8text="%E6%88%91%E7%88%B1%E5%BE%AE%E5%BE%AE" />
+//---------------------------------------------------------------------------
+function ParseWideStringField(Node: TXMLNode): WideString;
+
+//---------------------------------------------------------------------------
+var LibraryPath: string = '';{ 为空则使用程序执行路径，否则为指定路径 }
+
 implementation
 
 //---------------------------------------------------------------------------
 uses
  AsphyreArchives, AsphyreEffects;
+
+
 
 //---------------------------------------------------------------------------
 function IsArchiveLink(const Text: string): Boolean;
@@ -261,8 +280,12 @@ begin
  // Step 4. Remove leading "\", if such exists.
  if (Length(Result) > 0)and(Result[1] = '\') then Delete(Result, 1, 1);
 
- // Step 5. Include program path
- Result:= ExtractFilePath(ParamStr(0)) + Result;
+ if LibraryPath = '' then{ 通过这样设置可定义相对路径 }
+   LibraryPath := ExtractFilePath(ParamStr(0));
+
+ // Step 5. Include program path  如果不是绝对路径时才包含程序路径
+ if (Length(Result) > 2) and (Result[2] <> ':') then
+   Result:= LibraryPath + Result;
 end;
 
 //---------------------------------------------------------------------------
@@ -314,7 +337,11 @@ var
 begin
  SetString(Result, WinDir, GetWindowsDirectory(WinDir, MAX_PATH));
 
- if (Result = '') then Result:= ExtractFilePath(ParamStr(0));
+ if (Result = '') then
+   if LibraryPath = '' then
+     Result:= ExtractFilePath(ParamStr(0))
+   else
+     Result := LibraryPath;
 end;
 
 //---------------------------------------------------------------------------
@@ -449,9 +476,9 @@ end;
 function ParseFormat(const Text: string): TD3DFormat;
 begin
  Result:= D3DFMT_UNKNOWN;
-
+ {$IFNDEF AsphyreUseDx8}
  if (Text = 'a2r10g10b10') then Result:= D3DFMT_A2R10G10B10;
-
+ {$ENDIF}
  if (Text = 'r8g8b8') then Result:= D3DFMT_R8G8B8;
  if (Text = 'a8r8g8b8') then Result:= D3DFMT_A8R8G8B8;
  if (Text = 'x8r8g8b8') then Result:= D3DFMT_X8R8G8B8;
@@ -468,12 +495,16 @@ begin
  if (Text = 'x4r4g4b4') then Result:= D3DFMT_X4R4G4B4;
  if (Text = 'a2b10g10r10') then Result:= D3DFMT_A2B10G10R10;
 
+ {$IFNDEF AsphyreUseDx8}
  if (Text = 'a8b8g8r8') then Result:= D3DFMT_A8B8G8R8;
  if (Text = 'x8b8g8r8') then Result:= D3DFMT_X8B8G8R8;
+ {$ENDIF}
  if (Text = 'g16r16') then Result:= D3DFMT_G16R16;
  if (Text = 'a4r4g4b4') then Result:= D3DFMT_A4R4G4B4;
+ {$IFNDEF AsphyreUseDx8}
  if (Text = 'a2r10g10b10') then Result:= D3DFMT_A2R10G10B10;
  if (Text = 'a16b16g16r16') then Result:= D3DFMT_A16B16G16R16;
+ {$ENDIF}
 
  if (Text = 'a8p8') then Result:= D3DFMT_A8P8;
  if (Text = 'p8') then Result:= D3DFMT_P8;
@@ -487,19 +518,36 @@ begin
  if (Text = 'q8w8v8u8') then Result:= D3DFMT_Q8W8V8U8;
  if (Text = 'v16u16') then Result:= D3DFMT_V16U16;
  if (Text = 'a2w10v10u10') then Result:= D3DFMT_A2W10V10U10;
+ {$IFNDEF AsphyreUseDx8}
+ {$IF CompilerVersion <= 18.5}
  if (Text = 'a8x8v8u8') then Result:= D3DFMT_A8X8V8U8;
  if (Text = 'l8x8v8u8') then Result:= D3DFMT_L8X8V8U8;
+ {$ELSE}
+ if (Text = 'a8x8v8u8') then Result:= TD3DFormat(68);//D3DFMT_A8X8V8U8;
+ if (Text = 'l8x8v8u8') then Result:= TD3DFormat(69);//D3DFMT_L8X8V8U8;
+ {$IFEND}
+ {$ENDIF}
 
  if (Text = 'uyvy') then Result:= D3DFMT_UYVY;
+
+ {$IFNDEF AsphyreUseDx8}
+ {$IF CompilerVersion <= 18.5}
  if (Text = 'rgbg') then Result:= D3DFMT_RGBG;
+ {$IFEND}
+ {$ENDIF}
  if (Text = 'yuy2') then Result:= D3DFMT_YUY2;
+ {$IFNDEF AsphyreUseDx8}
+ {$IF CompilerVersion <= 18.5}
  if (Text = 'grgb') then Result:= D3DFMT_GRGB;
+ {$IFEND}
+ {$ENDIF}
  if (Text = 'dxt1') then Result:= D3DFMT_DXT1;
  if (Text = 'dxt2') then Result:= D3DFMT_DXT2;
  if (Text = 'dxt3') then Result:= D3DFMT_DXT3;
  if (Text = 'dxt4') then Result:= D3DFMT_DXT4;
  if (Text = 'dxt5') then Result:= D3DFMT_DXT5;
 
+ {$IFNDEF AsphyreUseDx8}
  if (Text = 'q16w16v16u16') then Result:= D3DFMT_Q16W16V16U16;
  if (Text = 'multi2_argb8') then Result:= D3DFMT_MULTI2_ARGB8;
  if (Text = 'r16f') then Result:= D3DFMT_R16F;
@@ -509,6 +557,7 @@ begin
  if (Text = 'g32r32f') then Result:= D3DFMT_G32R32F;
  if (Text = 'a32b32g32r32f') then Result:= D3DFMT_A32B32G32R32F;
  if (Text = 'cxv8u8') then Result:= D3DFMT_CxV8U8;
+ {$ENDIF}
 end;
 
 //---------------------------------------------------------------------------
@@ -582,4 +631,54 @@ begin
 end;
 
 //---------------------------------------------------------------------------
+
+{Piao40993470 Add Begin}
+function WideStringToUtf8BinString(const AText: WideString): AnsiString;
+var tmpCode: UTF8String;
+    tmpStr: AnsiString;
+begin{ 2007-07-07 15:51 Add by Piao40993470}
+  Result := '';
+  tmpCode := AnsiToUtf8(AText);
+  SetLength(tmpStr, Length(tmpCode) * 2);
+  BinToHex(PAnsiChar(tmpCode), PAnsiChar(tmpStr), Length(tmpCode));
+  Result := tmpStr;
+  SetLength(tmpStr, 0);
+end;
+
+function Utf8BinStringToWideString(const AStr: AnsiString): WideString;
+const csDefault = '%';
+var tmpCode: UTF8String;
+    tmpStr: AnsiString;
+begin{ 2007-07-07 15:51 Add by Piao40993470}
+  Result := '';
+  if Pos(csDefault, AStr) > 0 then
+    tmpStr := Trim(StringReplace(AStr, csDefault, '', [rfReplaceAll]))
+  else
+    tmpStr := Trim(AStr);
+
+  if (Length(tmpStr) mod 2) <> 0 then Exit;
+  try
+    SetLength(tmpCode, Length(tmpStr) div 2);
+    HexToBin(PAnsiChar(tmpStr), PAnsiChar(tmpCode), Length(tmpStr) div 2);
+    Result := Utf8ToAnsi(tmpCode);
+    SetLength(tmpCode, 0);
+  except
+    Result := '';
+  end;// try e
+end;
+
+function ParseWideStringField(Node: TXMLNode): WideString;
+begin{ 2007-07-07 15:51 Add by Piao40993470}
+  Result := '';
+  if (Node.FindFieldByName('widestring') <> -1) then
+  begin
+    Result := Node.FieldValue['widestring'];
+  end
+  else
+    if (Node.FindFieldByName('utf8text') <> -1) then
+    begin
+      Result := Utf8BinStringToWideString(Node.FieldValue['utf8text']);
+    end;// if
+end;
+{Piao40993470 Add End}
 end.

@@ -38,7 +38,12 @@ interface
 
 //--------------------------------------------------------------------------
 uses
- Windows, SysUtils, Direct3D9, D3DX9, AsphyreDevices;
+ Windows, SysUtils, AsphyreDevices,
+ {$IFDEF AsphyreUseDx8}
+ Direct3D8, D3DX8
+ {$ELSE}
+ Direct3D9, D3DX9
+ {$ENDIF} ;
 
 //--------------------------------------------------------------------------
 type
@@ -63,7 +68,7 @@ type
 //--------------------------------------------------------------------------
  TAsphyreMeshX = class(TAsphyreCustomMesh)
  public
-  function LoadFromFile(const FileName: string): Boolean;
+  function LoadFromFile(const FileName: AnsiString): Boolean;
  end;
 
 //--------------------------------------------------------------------------
@@ -80,9 +85,11 @@ implementation
 
 //--------------------------------------------------------------------------
 uses
- AsphyreScene, AsphyreBasicShaders, AsphyreColors;
+ AsphyreScene, {AsphyreBasicShaders,} AsphyreColors;
 
 //---------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+{$ELSE}
 const
  TangentBinormalElements: array[0..5] of
   TD3DVertexElement9 =
@@ -104,6 +111,7 @@ const
   // D3DDECL_END()
   (Stream: $FF; Offset: 0; _Type: D3DDECLTYPE_UNUSED;
    Method: TD3DDeclMethod(0); Usage: TD3DDeclUsage(0); UsageIndex: 0));
+{$ENDIF}
 
 //--------------------------------------------------------------------------
 procedure ResetDrawInfo();
@@ -137,7 +145,11 @@ function TAsphyreCustomMesh.Draw(): Boolean;
 var
  MaterialNo: Integer;
 begin
+ {$IFDEF AsphyreUseDx8}
+ Result:= (Device <> nil)and(Device.Dev8 <> nil)and(FDXMesh <> nil);
+ {$ELSE}
  Result:= (Device <> nil)and(Device.Dev9 <> nil)and(FDXMesh <> nil);
+ {$ENDIF}
  if (not Result) then Exit;
 
  Inc(TotalVerticesNo, FDXMesh.GetNumVertices);
@@ -152,7 +164,28 @@ begin
 end;
 
 //--------------------------------------------------------------------------
-function TAsphyreMeshX.LoadFromFile(const FileName: string): Boolean;
+{$IFDEF AsphyreUseDx8}
+function TAsphyreMeshX.LoadFromFile(const FileName: AnsiString): Boolean;
+var
+ Adjacency: ID3DXBuffer;
+begin
+ // (1) Perform validation.
+ Result:= (Device <> nil)and(Device.Dev8 <> nil);
+
+ if (not Result) then Exit;
+
+ // (2) Load mesh from external location.
+ if (Failed(D3DXLoadMeshFromX(PAnsiChar(FileName), D3DXMESH_MANAGED,
+  Device.Dev8, @Adjacency, nil, @NumMaterials, FDXMesh))) then Exit;
+
+ // (3) Optimize the loaded mesh.
+ FDXMesh.OptimizeInplace(D3DXMESHOPT_COMPACT or D3DXMESHOPT_ATTRSORT or
+  D3DXMESHOPT_VERTEXCACHE, Adjacency.GetBufferPointer(), nil, nil, nil);
+
+ Adjacency:= nil;
+end;
+{$ELSE}
+function TAsphyreMeshX.LoadFromFile(const FileName: AnsiString): Boolean;
 var
  Adjacency: ID3DXBuffer;
 begin
@@ -161,27 +194,57 @@ begin
  if (not Result) then Exit;
 
  // (2) Load mesh from external location.
- if (Failed(D3DXLoadMeshFromX(PChar(FileName), D3DXMESH_MANAGED,
+ if (Failed(D3DXLoadMeshFromXA(PAnsiChar(FileName), D3DXMESH_MANAGED,
   Device.Dev9, @Adjacency, nil, nil, @NumMaterials,
   FDXMesh))) then Exit;
 
- // (3) Optimize the loaded mesh. 
+ // (3) Optimize the loaded mesh.
  FDXMesh.OptimizeInplace(D3DXMESHOPT_COMPACT or D3DXMESHOPT_ATTRSORT or
   D3DXMESHOPT_VERTEXCACHE, Adjacency.GetBufferPointer(), nil, nil, nil);
 
  Adjacency:= nil;
 end;
+{$ENDIF}
 
 //--------------------------------------------------------------------------
+{$IFDEF AsphyreUseDx8}
+function TAsphyreCustomMesh.ComputeTangetBinormal(): Boolean;
+//var
+// ClonedMesh, TangentMesh: ID3DXMesh;
+begin{dx8ÏÂÃ»ÓÐD3DXComputeTangentFrameEx}
+  Result := FDXMesh <> nil;
+// ClonedMesh := nil;
+// TangentMesh:= nil;
+// 
+// FDXMesh.CloneMesh(D3DXMESH_MANAGED, nil, Device.Dev8,
+//   ClonedMesh);
+//
+// Result:= Succeeded(D3DXComputeTangentFrameEx(ClonedMesh,
+//  Cardinal(D3DDECLUSAGE_TEXCOORD), 0,
+//  Cardinal(D3DDECLUSAGE_TANGENT), 0,
+//  Cardinal(D3DDECLUSAGE_BINORMAL), 0,
+//  Cardinal(D3DDECLUSAGE_NORMAL), 0,
+//  0, nil, 0.01, 0.25, 0.01, TangentMesh, nil));
+//
+// FDXMesh:= nil;
+// ClonedMesh:= nil;
+// FDXMesh:= TangentMesh;
+// TangentMesh:= nil;
+end;
+{$ELSE}
 function TAsphyreCustomMesh.ComputeTangetBinormal(): Boolean;
 var
  ClonedMesh, TangentMesh: ID3DXMesh;
 begin
  ClonedMesh := nil;
  TangentMesh:= nil;
-
+ {$IFDEF AsphyreUseDx8}
+ FDXMesh.CloneMesh(D3DXMESH_MANAGED, nil, Device.Dev8,
+   ClonedMesh);
+ {$ELSE}
  FDXMesh.CloneMesh(D3DXMESH_MANAGED, @TangentBinormalElements[0], Device.Dev9,
-  ClonedMesh);
+   ClonedMesh);
+ {$ENDIF}
 
  Result:= Succeeded(D3DXComputeTangentFrameEx(ClonedMesh,
   Cardinal(D3DDECLUSAGE_TEXCOORD), 0,
@@ -195,6 +258,7 @@ begin
  FDXMesh:= TangentMesh;
  TangentMesh:= nil;
 end;
+{$ENDIF}
 
 //--------------------------------------------------------------------------
 end.

@@ -42,6 +42,8 @@ uses
 
 //---------------------------------------------------------------------------
 type
+  TOnDrawEvent = procedure (const DrawPos: TPoint2px) of object;
+
  TGuiControl = class(TGuiObject)
  private
   FShape    : string;
@@ -62,6 +64,8 @@ type
   FOnDblClick  : TNotifyEvent;
   FOnMouseEnter: TNotifyEvent;
   FOnMouseLeave: TNotifyEvent;
+    FOnDestroy: TNotifyEvent;
+    FOnDrawEvent: TOnDrawEvent;
 
   procedure SetOrigin(const Value: TPoint2px);
   procedure SetVisible(const Value: Boolean);
@@ -77,7 +81,7 @@ type
   procedure DoObjectUnlinked(Index: Integer; Obj: TGuiObject); override;
   procedure MoveToFront(Index: Integer); override;
   procedure MoveToBack(Index: Integer); override;
-  function GetBoundBox(const Shape: string): TRect;
+
 
   procedure DoDescribe(); override;
   procedure WriteProperty(Code: Cardinal; Source: Pointer); override;
@@ -98,6 +102,7 @@ type
   procedure DrawSkin(const DrawPos: TPoint2px); virtual;
   procedure DrawAt(const AtPos: TPoint2px);
  public
+  function GetBoundBox(const Shape: string): TRect;
   // The shape identifying the control's area.
   property Shape: string read FShape write FShape;
 
@@ -132,6 +137,9 @@ type
   property OnDblClick  : TNotifyEvent read FOnDblClick write FOnDblClick;
   property OnMouseEnter: TNotifyEvent read FOnMouseEnter write FOnMouseEnter;
   property OnMouseLeave: TNotifyEvent read FOnMouseLeave write FOnMouseLeave;
+
+  property OnDestroy: TNotifyEvent read FOnDestroy write FOnDestroy;
+  property OnDraw: TOnDrawEvent read FOnDrawEvent write FOnDrawEvent;
 
   // Conversion utilities between screen pixel space and local space.
   function ScreenToLocal(const Point: TPoint2px): TPoint2px;
@@ -188,7 +196,9 @@ end;
 //---------------------------------------------------------------------------
 procedure TGuiControl.DoDestroy();
 begin
- FSkin.Free();
+  if Assigned(FOnDestroy) then
+    FOnDestroy(Self);
+  FSkin.Free();
 end;
 
 //---------------------------------------------------------------------------
@@ -296,6 +306,8 @@ end;
 procedure TGuiControl.DoDraw(const DrawPos: TPoint2px);
 begin
  // no code
+   if Assigned(FOnDrawEvent) then
+    FOnDrawEvent(DrawPos);// 响应外部绘制事件
 end;
 
 //---------------------------------------------------------------------------
@@ -501,7 +513,8 @@ begin
  if (Assigned(FOnMouse)) then FOnMouse(Self, Pos, Event, Button, SpecialKeys);
 
  if (Event = metClick)and(FEnabled)and(Assigned(FOnClick))and
-  (PointInside(FShape, Pos)) then FOnClick(Self);
+  (PointInside(FShape, Pos)) then
+   FOnClick(Self);
 
  if (Event = metDblClick)and(FEnabled)and(Assigned(FOnDblClick))and
   (PointInside(FShape, Pos)) then FOnDblClick(Self);
